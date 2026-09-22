@@ -1,9 +1,102 @@
-import example.pepita
+import example.*
 
-describe "group of tests for pepita" {
+describe "Grupo de Tests para el Báculo" {
 
-  test "pepita has initial energy" {
-    assert.equals(100, pepita.energy())
+  test "Un báculo para un guerrero con mucha vida"{
+    assert.equals(250, baculo.poder(gandalf))
   }
+  test "Un báculo para un guerrero con poca vida tiene tope"{
+    gandalf.vida(5)
+    assert.equals(400,baculo.poder(gandalf))
+  }
+  test "Un báculo de poder base 100 para un guerrero con poca vida"{
+    baculo.poderBase(100)
+    gandalf.vida(5)
+    assert.equals(200,baculo.poder(gandalf))
+  }
+}
 
+describe "Grupo de Tests para la Espada" {
+  test "Una espada élfica para cualquier guerrero"{
+    assert.equals(250,espada.poder(gandalf))
+  }
+  test "Una espada enana para un guerrero de vida 100"{
+    espada.magia(enana)
+    assert.equals(500,espada.poder(gandalf))
+  }
+}
+
+describe "Grupo de Tests para la Flecha de Bronce" {
+  test "Flecha de bronce lustrada el 01/01/2024 y usada el 05/01/2024"{
+    assert.equals(96,flechaDeBronce.poder(gandalf))
+  }
+  test "Flecha de bronce lustrada el 01/01/2024 y usada el 05/09/2024" {
+    flechaDeBronce.fechaDeUso().mes(9)
+    assert.equals(0,flechaDeBronce.poder(gandalf))
+  }
+}
+
+describe "Grupo de Tests para Gandalf" {
+  const arma1 = new Arma(unPoder=100)
+  const arma2 = new Arma(unPoder=150)
+  test "El poder de Gandalf con vida 100 y un arma de poder 100 más otra de 150" {
+    gandalf.armas().add(arma1)
+    gandalf.armas().add(arma2)
+    assert.equals(2000,gandalf.poder())
+  }
+  test "El poder de Gandalf con vida 5 y un arma de poder 100 más otra de 150" {
+    gandalf.armas().add(arma1)
+    gandalf.armas().add(arma2)
+    gandalf.vida(5)
+    assert.equals(1500,gandalf.poder())
+  }
+}
+
+describe "Grupo de Tests para la Caja de Flechas Negras" {
+  test "Flecha de Aluminio"{
+    assert.equals(50,flechaDeAluminio.poder(gandalf))
+  }
+  test "Flecha de Hierro sin Oxidar"{
+    assert.equals(70,flechaDeHierro.poder(gandalf))
+  }
+  test "Flecha de Hierro Oxidada"{
+    flechaDeHierro.oxidada(true)
+    assert.equals(35,flechaDeHierro.poder(gandalf))
+  }
+  test "Una Caja con las Tres Flechas"{
+    assert.equals(83,cajaDeFlechasNegras.poder(gandalf))
+  }
+}
+
+describe "Grupo de Tests para Lebennin" {
+  test "Gandalf pasa por Lebennin"{
+    gandalf.vida(100)
+    lebennin.cantidadDeGuardias(3)
+    assert.that(lebennin.puedePasar(gandalf))
+  }
+  test "Un guerrero con poder 3000 puede pasar por Lebennin"{
+    const guerrero1 = new Guerrero(vida=100, unPoder=3000, armas=[])
+    assert.that(lebennin.puedePasar(guerrero1))
+  }
+  test "Un guerrero con poder 100 no puede pasar por Lebennin"{
+    const guerrero2 = new Guerrero(vida=100, unPoder=100, armas=[])
+    assert.notThat(lebennin.puedePasar(guerrero2))
+  }
+}
+
+describe "Grupo de Tests para Minas Tirith" {
+  test "Un personaje armado puede pasar Minas Tirith"{
+    const guerrero1 = new Guerrero(vida=100, unPoder=100, armas=[baculo])
+    assert.that(minasTirith.puedePasar(guerrero1))
+  }
+  test "Un personaje desarmado no puede pasar Minas Tirith"{
+    const guerrero2 = new Guerrero(vida=100, unPoder=100, armas=[])
+    assert.notThat(minasTirith.puedePasar(guerrero2))
+  }
+  test "Gandalf de 100 unidades de vida con el báculo y la espada pasa por Minas Tirith"{
+    gandalf.armas().add(baculo)
+    gandalf.armas().add(espada)
+    assert.that(minasTirith.puedePasar(gandalf))
+    assert.equals(80,gandalf.vida())
+  }
 }
