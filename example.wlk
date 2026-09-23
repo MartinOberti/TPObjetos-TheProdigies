@@ -175,7 +175,7 @@ object caminoDeGondor
 
   method atravesar(guerrero)
   {
-    camino.all({lugar => lugar.atravesar(guerrero)})
+    camino.forEach({lugar => lugar.atravesar(guerrero)})
   }
 }
 
