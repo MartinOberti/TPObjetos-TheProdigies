@@ -96,7 +96,7 @@ describe "Grupo de Tests para Minas Tirith" {
   }
   test "Gandalf de 100 unidades de vida con el báculo y la espada pasa por Minas Tirith"{
     gandalf.armas().remove(cajaDeFlechasNegras)
-    assert.that(minasTirith.puedePasar(gandalf))
+    minasTirith.atravesar(gandalf)
     assert.equals(80,gandalf.vida())
   }
 }
