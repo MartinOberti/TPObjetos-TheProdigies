@@ -95,6 +95,7 @@ describe "Grupo de Tests para Minas Tirith" {
     assert.notThat(minasTirith.puedePasar(guerrero2))
   }
   test "Gandalf de 100 unidades de vida con el báculo y la espada pasa por Minas Tirith"{
+    gandalf.armas().remove(cajaDeFlechasNegras)
     assert.that(minasTirith.puedePasar(gandalf))
     assert.equals(80,gandalf.vida())
   }
@@ -105,17 +106,20 @@ describe "Grupo de Tests para Lossarnach" {
     assert.that(lossarnach.puedePasar(gandalf))
   }
   test "Gandalf de 100 unidades de vida con el báculo y la espada pasa por Lossarnach"{
-    lossarnach.puedePasar(gandalf)
+    gandalf.armas().remove(cajaDeFlechasNegras)
+    lossarnach.atravesar(gandalf)
     assert.equals(104,gandalf.vida())
   }
 }
 
 describe "Grupo de Tests para el Camino de Gondor" {
   test "Gandalf de 100 unidades de vida con el báculo y la espada, puede atravesar el camino compuesto por Lebennin y Minas Tirith"{
+    gandalf.armas().remove(cajaDeFlechasNegras)    
     assert.that(caminoDeGondor.puedePasar(gandalf))
   }
   test "Gandalf full vida y con su báculo y su espada, atraviesa el camino compuesto por Lebennin y Minas Tirith"{
-    caminoDeGondor.puedePasar(gandalf)
+    gandalf.armas().remove(cajaDeFlechasNegras)    
+    caminoDeGondor.atravesar(gandalf)
     assert.equals(80,gandalf.vida())
   }
 }
@@ -125,7 +129,7 @@ describe "Grupo de Tom Bombadil" {
     assert.that(lebennin.puedePasar(tomBombadil))
   }
   test "Tom atraviesa el camino que pasa por Gondor"{
-    caminoDeGondor.puedePasar(tomBombadil)
+    caminoDeGondor.atravesar(tomBombadil)
     assert.equals(100,tomBombadil.vida())
   }
 }

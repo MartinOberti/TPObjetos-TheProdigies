@@ -23,14 +23,14 @@ object espada
 object flechaDeBronce
 {
   const poderBase = 100
-  var property fechaDeLustre = new Fecha(dia=1,mes=1,anio=2024)
-  var property fechaDeUso = new Fecha(dia=5,mes=1,anio=2024)
+  var property fechaDeLustre = new Date(day=1, month=1, year=2024)
+  var property fechaDeUso = new Date(day=5, month=1, year=2024)
 
   method calcularDiferenciaDeFechas()
   {
-    return (fechaDeUso.dia()-fechaDeLustre.dia()
-    + 30*(fechaDeUso.mes()-fechaDeLustre.mes())
-    + 365*(fechaDeUso.anio()-fechaDeLustre.anio()))
+    return (fechaDeUso.day()-fechaDeLustre.day()
+    + 30*(fechaDeUso.month()-fechaDeLustre.month())
+    + 365*(fechaDeUso.year()-fechaDeLustre.year()))
   }
 
   method poder(guerrero)
@@ -71,11 +71,12 @@ object enana
 object gandalf
 {
   var property vida = 100
-  var property armas = [baculo,espada]
+  var property armas = [baculo,espada,cajaDeFlechasNegras]
   method poder()
   {
-    if(self.vida() < 10) {return vida * 200 + armas.sum({arma => arma.poder(self)}) * 2}
-    else {return vida * 15 + armas.sum({arma => arma.poder(self)}) * 2}
+    const multiplicadorVida = if(self.vida() < 10) 200 else 15
+    const poderArmas = armas.sum({ arma => arma.poder(self) }) * 2
+    return (self.vida() * multiplicadorVida) + poderArmas
   }
 
   method tieneArmas() {return armas.size() > 0}
@@ -91,13 +92,6 @@ object cajaDeFlechasNegras
     const aux = flechas.filter({flecha => flecha.poder(guerrero)>50})
     return aux.average({flecha => flecha.poder(guerrero)})
   }
-}
-
-class Fecha
-{
-  var property dia
-  var property mes
-  var property anio 
 }
 
 class Arma
@@ -133,19 +127,24 @@ object lebennin
   {
     return guerrero.poder() > self.poderNecesario()
   }
+
+  method atravesar(guerrero) {}
 }
 
 object minasTirith
 {
   method puedePasar(guerrero)
   {
-    if(guerrero.tieneArmas())
+    return guerrero.tieneArmas()
+  }
+
+  method atravesar(guerrero) 
+  {
+    if(self.puedePasar(guerrero))
     {
-      const aux = -guerrero.cantidadDeArmas()*10
-      guerrero.cambiarVida(aux)
-      return true
+      const danio = -guerrero.cantidadDeArmas()*10
+      guerrero.cambiarVida(danio)
     }
-    else {return false}
   }
 }
 
@@ -153,18 +152,30 @@ object lossarnach
 {
   method puedePasar(guerrero)
   {
-    const aux = guerrero.cantidadDeArmas()*2
-    guerrero.cambiarVida(aux)
     return true
+  }
+  method atravesar(guerrero)
+  {
+    if(self.puedePasar(guerrero))
+    {
+      const vida = guerrero.cantidadDeArmas()*2
+      guerrero.cambiarVida(vida)
+    }
   }
 }
 
 object caminoDeGondor
 {
   var property camino = [lebennin,minasTirith]
+
   method puedePasar(guerrero)
   {
     return camino.all({lugar => lugar.puedePasar(guerrero)})
+  }
+
+  method atravesar(guerrero)
+  {
+    camino.all({lugar => lugar.atravesar(guerrero)})
   }
 }
 
@@ -173,10 +184,9 @@ object caminoDeGondor
 object tomBombadil
 {
   var property vida = 100
-  var property armas = [espada]
 
   method poder() {return 2000}
-  method tieneArmas() {return armas.size() > 0}
+  method tieneArmas() {return true}
   method cambiarVida(valor) {}
   method cantidadDeArmas() {return 100}
 }
