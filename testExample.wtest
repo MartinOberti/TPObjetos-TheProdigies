@@ -1,7 +1,6 @@
 import example.*
 
 describe "Grupo de Tests para el Báculo" {
-
   test "Un báculo para un guerrero con mucha vida"{
     assert.equals(250, baculo.poder(gandalf))
   }
@@ -40,11 +39,13 @@ describe "Grupo de Tests para Gandalf" {
   const arma1 = new Arma(unPoder=100)
   const arma2 = new Arma(unPoder=150)
   test "El poder de Gandalf con vida 100 y un arma de poder 100 más otra de 150" {
+    gandalf.armas().clear()
     gandalf.armas().add(arma1)
     gandalf.armas().add(arma2)
     assert.equals(2000,gandalf.poder())
   }
   test "El poder de Gandalf con vida 5 y un arma de poder 100 más otra de 150" {
+    gandalf.armas().clear()
     gandalf.armas().add(arma1)
     gandalf.armas().add(arma2)
     gandalf.vida(5)
@@ -94,9 +95,37 @@ describe "Grupo de Tests para Minas Tirith" {
     assert.notThat(minasTirith.puedePasar(guerrero2))
   }
   test "Gandalf de 100 unidades de vida con el báculo y la espada pasa por Minas Tirith"{
-    gandalf.armas().add(baculo)
-    gandalf.armas().add(espada)
     assert.that(minasTirith.puedePasar(gandalf))
     assert.equals(80,gandalf.vida())
+  }
+}
+
+describe "Grupo de Tests para Lossarnach" {
+  test "Gandalf puede pasar Lossarnach"{
+    assert.that(lossarnach.puedePasar(gandalf))
+  }
+  test "Gandalf de 100 unidades de vida con el báculo y la espada pasa por Lossarnach"{
+    lossarnach.puedePasar(gandalf)
+    assert.equals(104,gandalf.vida())
+  }
+}
+
+describe "Grupo de Tests para el Camino de Gondor" {
+  test "Gandalf de 100 unidades de vida con el báculo y la espada, puede atravesar el camino compuesto por Lebennin y Minas Tirith"{
+    assert.that(caminoDeGondor.puedePasar(gandalf))
+  }
+  test "Gandalf full vida y con su báculo y su espada, atraviesa el camino compuesto por Lebennin y Minas Tirith"{
+    caminoDeGondor.puedePasar(gandalf)
+    assert.equals(80,gandalf.vida())
+  }
+}
+
+describe "Grupo de Tom Bombadil" {
+  test "Tom puede atravesar Lebennin"{
+    assert.that(lebennin.puedePasar(tomBombadil))
+  }
+  test "Tom atraviesa el camino que pasa por Gondor"{
+    caminoDeGondor.puedePasar(tomBombadil)
+    assert.equals(100,tomBombadil.vida())
   }
 }

@@ -71,7 +71,7 @@ object enana
 object gandalf
 {
   var property vida = 100
-  var property armas = []
+  var property armas = [baculo,espada]
   method poder()
   {
     if(self.vida() < 10) {return vida * 200 + armas.sum({arma => arma.poder(self)}) * 2}
@@ -79,7 +79,7 @@ object gandalf
   }
 
   method tieneArmas() {return armas.size() > 0}
-
+  method cantidadDeArmas() {return armas.size()}
   method cambiarVida(valor) {vida += valor}
 }
 
@@ -111,6 +111,7 @@ class Guerrero
   var property vida
   var property unPoder
   var property armas = []
+  method cantidadDeArmas() {return armas.size()}
   method poder() {return unPoder}
   method tieneArmas() {return armas.size() > 0}
   method cambiarVida(valor) {vida += valor}
@@ -140,10 +141,42 @@ object minasTirith
   {
     if(guerrero.tieneArmas())
     {
-      const aux = -guerrero.armas().size()*10
+      const aux = -guerrero.cantidadDeArmas()*10
       guerrero.cambiarVida(aux)
       return true
     }
     else {return false}
   }
+}
+
+object lossarnach
+{
+  method puedePasar(guerrero)
+  {
+    const aux = guerrero.cantidadDeArmas()*2
+    guerrero.cambiarVida(aux)
+    return true
+  }
+}
+
+object caminoDeGondor
+{
+  var property camino = [lebennin,minasTirith]
+  method puedePasar(guerrero)
+  {
+    return camino.all({lugar => lugar.puedePasar(guerrero)})
+  }
+}
+
+/*-------------------------PARTE 3-------------------------*/
+
+object tomBombadil
+{
+  var property vida = 100
+  var property armas = [espada]
+
+  method poder() {return 2000}
+  method tieneArmas() {return armas.size() > 0}
+  method cambiarVida(valor) {}
+  method cantidadDeArmas() {return 100}
 }
