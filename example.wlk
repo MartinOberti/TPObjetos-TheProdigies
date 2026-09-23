@@ -26,11 +26,12 @@ object flechaDeBronce
   var property fechaDeLustre = new Date(day=1, month=1, year=2024)
   var property fechaDeUso = new Date(day=5, month=1, year=2024)
 
+  method agregarMeses(meses){fechaDeUso = fechaDeUso.plusMonths(meses)}
+
   method calcularDiferenciaDeFechas()
   {
-    return (fechaDeUso.day()-fechaDeLustre.day()
-    + 30*(fechaDeUso.month()-fechaDeLustre.month())
-    + 365*(fechaDeUso.year()-fechaDeLustre.year()))
+    const dias = fechaDeUso - fechaDeLustre
+    return dias
   }
 
   method poder(guerrero)

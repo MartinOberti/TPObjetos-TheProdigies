@@ -30,7 +30,7 @@ describe "Grupo de Tests para la Flecha de Bronce" {
     assert.equals(96,flechaDeBronce.poder(gandalf))
   }
   test "Flecha de bronce lustrada el 01/01/2024 y usada el 05/09/2024" {
-    flechaDeBronce.fechaDeUso().mes(9)
+    flechaDeBronce.agregarMeses(8)
     assert.equals(0,flechaDeBronce.poder(gandalf))
   }
 }
