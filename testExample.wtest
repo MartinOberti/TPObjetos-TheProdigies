@@ -71,9 +71,9 @@ describe "Grupo de Tests para la Caja de Flechas Negras" {
 
 describe "Grupo de Tests para Lebennin" {
   test "Gandalf pasa por Lebennin"{
-    gandalf.vida(100)
+    lebennin.atravesar(gandalf)
     lebennin.cantidadDeGuardias(3)
-    assert.that(lebennin.puedePasar(gandalf))
+    assert.equals(100,gandalf.vida())
   }
   test "Un guerrero con poder 3000 puede pasar por Lebennin"{
     const guerrero1 = new Guerrero(vida=100, unPoder=3000, armas=[])

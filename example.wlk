@@ -129,7 +129,7 @@ object lebennin
     return guerrero.poder() > self.poderNecesario()
   }
 
-  method atravesar(guerrero) {}
+  method atravesar(guerrero) {return guerrero}
 }
 
 object minasTirith
@@ -176,7 +176,9 @@ object caminoDeGondor
 
   method atravesar(guerrero)
   {
+    if(self.puedePasar(guerrero)){
     camino.forEach({lugar => lugar.atravesar(guerrero)})
+    }
   }
 }
 
