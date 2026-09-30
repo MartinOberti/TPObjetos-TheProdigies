@@ -27,10 +27,13 @@ describe "Grupo de Tests para la Espada" {
 
 describe "Grupo de Tests para la Flecha de Bronce" {
   test "Flecha de bronce lustrada el 01/01/2024 y usada el 05/01/2024"{
+    flechaDeBronce.fechaDeLustre(new Date(day=1, month=1, year=2024))
+    flechaDeBronce.fechaDeUso(new Date(day=5, month=1, year=2024))
     assert.equals(96,flechaDeBronce.poder(gandalf))
   }
   test "Flecha de bronce lustrada el 01/01/2024 y usada el 05/09/2024" {
-    flechaDeBronce.agregarMeses(8)
+    flechaDeBronce.fechaDeLustre(new Date(day=1, month=1, year=2024))
+    flechaDeBronce.fechaDeUso(new Date(day=5, month=9, year=2024))
     assert.equals(0,flechaDeBronce.poder(gandalf))
   }
 }

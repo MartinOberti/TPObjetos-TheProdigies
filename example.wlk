@@ -1,32 +1,33 @@
 /*-------------------------PARTE 1-------------------------*/
 
-object baculo
+class Baculo
 {
   var property poderBase = 250
 
   method poder(guerrero) {
-    var aux = poderBase
-    if(guerrero.vida() < 10) {aux*=2}
-    if(aux>400){aux=400}
-    return aux
-  }
+    if(guerrero.vida() < 10){
+      return 400.min(poderBase*2)
+    }
+    else 
+    return 400
+    }
 }
+const baculo = new Baculo()
 
-object espada
+class Espada
 {
   const poderBase = 10
   var property magia = elfica
 
   method poder(guerrero) {return magia.valor(guerrero)*poderBase}
 }
+const espada = new Espada()
 
-object flechaDeBronce
+class FlechaDeBronce
 {
   const poderBase = 100
   var property fechaDeLustre = new Date(day=1, month=1, year=2024)
   var property fechaDeUso = new Date(day=5, month=1, year=2024)
-
-  method agregarMeses(meses){fechaDeUso = fechaDeUso.plusMonths(meses)}
 
   method calcularDiferenciaDeFechas()
   {
@@ -35,20 +36,18 @@ object flechaDeBronce
   }
 
   method poder(guerrero)
-  {
-    var aux = poderBase - self.calcularDiferenciaDeFechas()
-    if(aux<0){aux=0}
-    return aux
+  { 
+    return 0.max(poderBase - self.calcularDiferenciaDeFechas())
   }
 }
-
+const flechaDeBronce = new FlechaDeBronce()
 object flechaDeAluminio
 {
   var property poderBase = 50
   method poder(guerrero) {return poderBase}
 }
 
-object flechaDeHierro
+class FlechaDeHierro
 {
   var property oxidada=false
   const poderBase = 70
@@ -59,6 +58,7 @@ object flechaDeHierro
     return aux
   }
 }
+const flechaDeHierro = new FlechaDeHierro()
 object elfica
 {
   method valor(guerrero)=25
@@ -75,14 +75,17 @@ object gandalf
   var property armas = [baculo,espada,cajaDeFlechasNegras]
   method poder()
   {
-    const multiplicadorVida = if(self.vida() < 10) 200 else 15
-    const poderArmas = armas.sum({ arma => arma.poder(self) }) * 2
-    return (self.vida() * multiplicadorVida) + poderArmas
+    return (self.vida() * self.multiplicadorVida()) + armas.poderTotal()* 2
   }
 
-  method tieneArmas() {return armas.size() > 0}
+  method poderTotal()= armas.sum({ arma => arma.poder(self) })
+  method multiplicadorVida ()= if(self.vida() < 10) 200 else 15
+
+  method tieneArmas() {return armas.empty().not()}
   method cantidadDeArmas() {return armas.size()}
-  method cambiarVida(valor) {vida += valor}
+  method cambiarVida(valor) {
+    vida = 0.max(vida + valor)
+    }
 }
 
 object cajaDeFlechasNegras
@@ -108,8 +111,10 @@ class Guerrero
   var property armas = []
   method cantidadDeArmas() {return armas.size()}
   method poder() {return unPoder}
-  method tieneArmas() {return armas.size() > 0}
-  method cambiarVida(valor) {vida += valor}
+  method tieneArmas() {return armas.empty().not()}
+  method cambiarVida(valor) {
+    vida = 0.max(vida + valor)
+    }
 }
 
 /*-------------------------PARTE 2-------------------------*/
@@ -117,11 +122,19 @@ class Guerrero
 object lebennin
 {
   var property cantidadDeGuardias = 5
+
   method poderNecesario()
   {
-    var aux = 1000
-    if(cantidadDeGuardias > 3){aux=1500}
-    return aux
+    if(self.tieneMuchosGuardias()){
+      return 1500
+    }
+    else
+    return 1000
+   
+  }
+
+  method tieneMuchosGuardias(){
+    return cantidadDeGuardias > 3
   }
 
   method puedePasar(guerrero)
