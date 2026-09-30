@@ -5,13 +5,14 @@ class Baculo
   var property poderBase = 250
 
   method poder(guerrero) {
-    if(guerrero.vida() < 10){
-      return 400.min(poderBase*2)
-    }
+     return if(guerrero.tienePocaVida())
+       400.min(poderBase*2)
+    
     else 
-    return poderBase
+     poderBase
     }
 }
+
 const baculo = new Baculo()
 
 class Espada
@@ -115,6 +116,7 @@ class Guerrero
   method cambiarVida(valor) {
     vida = 0.max(vida + valor)
     }
+  method tienePocaVida() {return vida < 10}
 }
 
 /*-------------------------PARTE 2-------------------------*/
