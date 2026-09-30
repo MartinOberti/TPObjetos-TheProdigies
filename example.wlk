@@ -9,7 +9,7 @@ class Baculo
       return 400.min(poderBase*2)
     }
     else 
-    return 400
+    return poderBase
     }
 }
 const baculo = new Baculo()
