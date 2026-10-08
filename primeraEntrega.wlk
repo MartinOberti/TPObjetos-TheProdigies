@@ -1,3 +1,4 @@
+/*=====================PRIMERA ENTREGA=====================*/
 /*-------------------------PARTE 1-------------------------*/
 
 class Baculo
@@ -130,9 +131,9 @@ object lossarnach
   }
 }
 
-object caminoDeGondor
+class Camino
 {
-  const zonas = [lebennin,minasTirith]
+  const zonas = []
 
   method puedePasar(guerrero) = zonas.all({lugar => lugar.puedePasar(guerrero)})
   method atravesar(guerrero)
@@ -141,6 +142,8 @@ object caminoDeGondor
     else throw new DomainException(message = "No puede atravesar este camino")
   }
 }
+
+const caminoDeGondor = new Camino(zonas=[lebennin,minasTirith])
 
 /*-------------------------PARTE 3-------------------------*/
 

@@ -1,4 +1,4 @@
-import example.*
+import primeraEntrega.*
 
 describe "Grupo de Tests para el Báculo" {
   test "Un báculo para un guerrero con mucha vida"{
