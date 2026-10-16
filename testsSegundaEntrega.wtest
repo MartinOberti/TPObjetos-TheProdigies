@@ -1,0 +1,89 @@
+
+import segundaEntrega.*
+import primeraEntrega.Baculo
+
+describe "Grupo de test para el Arsenal" {
+
+  test "Espada de enano, con multiplicador de 15" {
+    const enano = object {
+      method esElfo() = false
+      method esEnano() = true
+      method esHumano() = false
+    }
+
+    const espada = new Espada(poderBase = 15)
+
+    assert.equals(300, espada.poder(enano))
+  }
+
+  test "Espada de elfo, con multiplicador de 10" {
+    const elfo = object {
+      method esElfo() = true
+      method esEnano() = false
+      method esHumano() = false
+    }
+
+    const espada = new Espada(poderBase = 10)
+
+    assert.equals(250, espada.poder(elfo))
+  }
+
+  test "Espada de humano, con multiplicador de 10" {
+    const humano = object {
+      method esElfo() = false
+      method esEnano() = false
+      method esHumano() = true
+    }
+
+    const espada = new Espada(poderBase = 10)
+
+    assert.equals(150, espada.poder(humano))
+  }
+  
+test "Hacha con mango de 50 cm y hoja de 5 kg" {
+  const hacha = new Hacha(
+    mango = 50,
+    hoja = 5
+  )
+
+  assert.equals(250, hacha.poder())
+}
+
+
+test "Hacha con mango de 70 cm y hoja de 5 kg" {
+  const hacha = new Hacha(
+    mango = 70,
+    hoja = 5
+  )
+
+  assert.equals(350, hacha.poder())
+}
+
+test "Daga de enano con multiplicador 10" {
+  const enano = object {
+    method esElfo() = false
+    method esEnano() = true
+    method esHumano() = false
+  }
+
+  const daga = new Daga(poderBase = 10)
+
+  assert.equals(100, daga.poder(enano))
+}
+
+test "Daga de elfo con multiplicador 8" {
+  const elfo = object {
+    method esElfo() = true
+    method esEnano() = false
+    method esHumano() = false
+  }
+
+  const daga = new Daga(poderBase = 8)
+
+  assert.equals(100, daga.poder(elfo))
+}
+
+}
+
+
+
