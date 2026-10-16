@@ -2,7 +2,7 @@
 import segundaEntrega.*
 import primeraEntrega.Baculo
 
-describe "Grupo de test para el Arsenal" {
+describe "Grupo de test para Arsenal" {
 
   test "Espada de enano, con multiplicador de 15" {
     const enano = object {
