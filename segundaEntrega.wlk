@@ -1,6 +1,7 @@
 /*=====================SEGUNDA ENTREGA=====================*/
 /*-------------------------PARTE 1-------------------------*/
 import primeraEntrega.Baculo
+import primeraEntrega.Camino
 
 class Espada
 {
@@ -29,7 +30,7 @@ class Hacha
 	const mango
 	const hoja
 
-	method poder() = mango * hoja
+	method poder(guerrero) = mango * hoja
 }
 
 /*-------------------------PARTE 2-------------------------*/
@@ -45,9 +46,23 @@ class Guerrero
   method cantidadDeElementos() = elementos.size()
   method poderDeArmas() = armas.sum({arma => arma.poder(self)})
   method tienePocaVida() = self.vida() < 10
-	method esElfo() = self.className() == Elfo
-	method esEnano() = self.className() == Enano
-	method esHumano() = self.className() == Humano
+  method perderVida(valor) {vida = 0.max(self.vida() - valor)}
+	method esElfo() = self.kindName() == "an Elfo"
+	method esEnano() = self.kindName() == "an Enano"
+	method esHumano() = self.kindName() == "a Humano"
+
+  method cantidadDeUnElemento(nombre){
+    const aux = elementos.filter({elemento => elemento.mismoNombre(nombre)})
+    return aux.sum({elemento => elemento.cantidad()})
+  }
+}
+
+class Elemento
+{
+  var property cantidad
+
+  method nombre() = self.kindName()
+  method mismoNombre(nombre) = nombre == self.nombre()
 }
 
 class PoderGuerrero inherits Guerrero
@@ -78,6 +93,7 @@ class Elfo inherits ElfoBase
   var property destrezaPropia
 
   override method modificadorDePoder() = (destrezaBase + destrezaPropia)
+  method aumentarDestrezaPropia(valor) {destrezaPropia += valor}
 }
 
 class Humano inherits Guerrero
@@ -123,3 +139,81 @@ const aragorn = new Humano(vida = 85, limitadorDePoder = 20, armas = [anduril, d
 const glamdring = new Espada(poderBase = 10)
 const baculoDeGandalf = new Baculo(poderBase = 400)
 const gandalf = new Maiar(vida = 100, armas = [glamdring, baculoDeGandalf])
+
+/*-------------------------PARTE 3-------------------------*/
+
+class Grupo
+{
+  const property listaDeGuerreros = []
+
+  method recorrerCamino(camino) = 
+}
+
+//class Camino importada
+
+class Zona
+{
+  method puedePasar(guerrero) = self.criterio(guerrero)
+  method atravesar(guerrero){
+    return
+      if(self.puedePasar(guerrero)) self.cambiosAlGuerrero(guerrero)
+      else throw new DomainException(message = "No puede atravesar esta zona")
+  }
+  method criterio(guerrero) = true
+  method cambiosAlGuerrero(guerrero) = guerrero
+}
+
+class ZonaQueDemandaPoder inherits Zona
+{
+  const poderNecesario
+
+  override method criterio(guerrero) = guerrero.poder() > poderNecesario
+}
+
+class ZonaQueDemandaArmas inherits Zona
+{
+  const vidaAQuitar
+
+  override method criterio(guerrero) = guerrero.tieneArmas()
+  override method cambiosAlGuerrero(guerrero) = guerrero.perderVida(vidaAQuitar)
+}
+
+const lossarnach = new Zona()
+
+class Requerimiento
+{
+  method grupoPuedePasar(grupo)
+}
+
+class RequerimientoDeElemento inherits Requerimiento
+{
+  const cantidad
+  const nombre
+
+  override method grupoPuedePasar(grupo) = self.sumatoriaDeCantidad(grupo) >= cantidad
+  method sumatoriaDeCantidad(grupo) = (grupo.listaDeGuerreros()).sum({guerrero => guerrero.cantidadDeUnElemento(nombre)})
+}
+
+class RequerimientoDeGuerrero inherits Requerimiento
+{
+  const cantidadNecesaria
+
+  override method grupoPuedePasar(grupo) = grupo.any({guerrero => self.criterio(guerrero)})
+  method criterio(guerrero) = cantidadNecesaria > self.factor(guerrero)
+  method factor(guerrero)
+}
+
+class RequerimientoDeArmas inherits RequerimientoDeGuerrero
+{
+  override method factor(guerrero) = guerrero.cantidadDeArmas()
+}
+
+class RequerimientoDePoder inherits RequerimientoDeGuerrero
+{
+  override method factor(guerrero) = guerrero.poder()
+}
+
+class RequerimientoDeVida inherits RequerimientoDeGuerrero
+{
+  override method factor(guerrero) = guerrero.vida()
+}

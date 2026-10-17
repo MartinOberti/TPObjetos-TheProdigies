@@ -1,89 +1,60 @@
-
 import segundaEntrega.*
-import primeraEntrega.Baculo
 
-describe "Grupo de test para Arsenal" {
-
-  test "Espada de enano, con multiplicador de 15" {
-    const enano = object {
-      method esElfo() = false
-      method esEnano() = true
-      method esHumano() = false
-    }
-
-    const espada = new Espada(poderBase = 15)
-
-    assert.equals(300, espada.poder(enano))
+describe "Grupo de Tests para el Arsenal" {
+	const enanoTest = new Enano(factorDePoder=5, vida=50)
+  test "Espada con multiplicador de 15 y llevada Enano"{
+		const espadaTest = new Espada(poderBase=15)
+		assert.equals(300,espadaTest.poder(enanoTest))
   }
-
-  test "Espada de elfo, con multiplicador de 10" {
-    const elfo = object {
-      method esElfo() = true
-      method esEnano() = false
-      method esHumano() = false
-    }
-
-    const espada = new Espada(poderBase = 10)
-
-    assert.equals(250, espada.poder(elfo))
-  }
-
-  test "Espada de humano, con multiplicador de 10" {
-    const humano = object {
-      method esElfo() = false
-      method esEnano() = false
-      method esHumano() = true
-    }
-
-    const espada = new Espada(poderBase = 10)
-
-    assert.equals(150, espada.poder(humano))
-  }
-  
-test "Hacha con mango de 50 cm y hoja de 5 kg" {
-  const hacha = new Hacha(
-    mango = 50,
-    hoja = 5
-  )
-
-  assert.equals(250, hacha.poder())
+	test "Espada con multiplicador de 5 y llevada por guerrero con 3 armas"{
+		const espadaTest = new Espada(poderBase=5)
+		assert.equals(150,espadaTest.poder(object inherits Hobbit(vida=50){override method cantidadDeArmas()=3}))
+	}
+	test "Daga con multiplicador 20 y lleva Élfico"{
+		const dagaTest = new Daga(poderBase=20)
+		const elfoTest = new Elfo(destrezaPropia=5, vida=50)
+		assert.equals(250,dagaTest.poder(elfoTest))
+	}
+	test "Daga con multiplicador 10 y lleva Humano"{
+		const dagaTest = new Daga(poderBase=10)
+		const humanoTest = new Humano(limitadorDePoder=5,vida=50)
+		assert.equals(75,dagaTest.poder(humanoTest))
+	}
+	test "Hacha con mango de 50cm, con una hoja de 5kg"{
+		const hachaTest = new Hacha(mango=50, hoja=5)
+		assert.equals(250,hachaTest.poder(enanoTest))
+	}
+	test "Hacha con mango de 75cm, con una hoja de 15kg"{
+		const hachaTest = new Hacha(mango=75, hoja=15)
+		assert.equals(1125,hachaTest.poder(enanoTest))
+	}
 }
 
-
-test "Hacha con mango de 70 cm y hoja de 5 kg" {
-  const hacha = new Hacha(
-    mango = 70,
-    hoja = 5
-  )
-
-  assert.equals(350, hacha.poder())
-}
-
-test "Daga de enano con multiplicador 10" {
-  const enano = object {
-    method esElfo() = false
-    method esEnano() = true
-    method esHumano() = false
+describe "Grupo de Tests para Guerreros" {
+	test "Poder de Frodo (sin items)"{
+		assert.equals(50,frodo.poder())
+	}
+	test "Poder de Gimli"{
+		assert.equals(2175,gimli.poder())
+	}
+	test "Poder de Légolas"{
+		assert.equals(980,legolas.poder())
+	}
+	test "Poder de Aragorn"{
+		assert.equals(102.25,aragorn.poder())
+	}
+	test "Poder de Gandalf"{
+		assert.equals(2700,gandalf.poder())
+	}
+	test "Poder de Gandalf con 9 de vida y todas sus armas"{
+		gandalf.vida(9)
+		assert.equals(3900,gandalf.poder())
+	}
+  test "Poder de Légolas que obtiene medio punto de destreza propia"{
+    legolas.aumentarDestrezaPropia(0.5)
+    assert.equals(1130,legolas.poder())
   }
-
-  const daga = new Daga(poderBase = 10)
-
-  assert.equals(100, daga.poder(enano))
-}
-
-test "Daga de elfo con multiplicador 8" {
-  const elfo = object {
-    method esElfo() = true
-    method esEnano() = false
-    method esHumano() = false
+  test "Poder de Gollum"{
+    assert.equals(50,gollum.poder())
   }
-
-  const daga = new Daga(poderBase = 8)
-
-  assert.equals(100, daga.poder(elfo))
 }
-
-}
-
-
-
