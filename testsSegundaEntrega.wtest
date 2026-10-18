@@ -58,3 +58,12 @@ describe "Grupo de Tests para Guerreros" {
     assert.equals(50,gollum.poder())
   }
 }
+describe "Grupo de Tests para los caminos de la Tierra Media" {
+	
+test "Zona de poder, permite al guerrero con poder mayor a 1500" {
+  const zona = new ZonaQueDemandaPoder(poderNecesario = 1500)
+  const viajero = new Maiar(vida = 110, armas = [] )
+  assert.that(zona.puedePasar(viajero))
+}
+
+}
