@@ -1,9 +1,7 @@
 /*=====================SEGUNDA ENTREGA=====================*/
 /*-------------------------PARTE 1-------------------------*/
 import primeraEntrega.Baculo
-import primeraEntrega.Camino
-import primeraEntrega.lebennin
-import primeraEntrega.minasTirith
+
 class Espada
 {
 	const poderBase
@@ -48,11 +46,14 @@ class Guerrero
   method tieneArmas() = !armas.isEmpty()
   method poderDeArmas() = armas.sum({arma => arma.poder(self)})
   method tienePocaVida() = self.vida() < 10
-  method cambiarVida(valor) {vida = 0.max(self.vida() + valor)}
+  method aumentarVida(valor) {vida = 0.max(self.vida() + valor)}
+  method perderVida(valor) {vida = 0.max(self.vida() - valor)}
+  method estaMuerto() = vida == 0
 	method esElfo() = self.kindName() == "an Elfo"
 	method esEnano() = self.kindName() == "an Enano"
 	method esHumano() = self.kindName() == "a Humano"
-
+  method atravesarZona(zona) = zona.atravesar(self)
+  method atravesarCamino(camino) = camino.atravesar(self)
   method cantidadDeUnElemento(nombre){
     const aux = elementos.filter({elemento => elemento.mismoNombre(nombre)})
     return aux.sum({elemento => elemento.cantidad()})
@@ -140,29 +141,25 @@ const gandalf = new Maiar(vida = 100, armas = [glamdring, baculoDeGandalf])
 
 /*-------------------------PARTE 3-------------------------*/
 
-class Grupo
-{
-  const property listaDeGuerreros = []
-  
-  method recorrerCamino(camino) {
-
-  listaDeGuerreros.forEach({guerrero => camino.atravesar(guerrero)}) 
-    
-  } 
-}
-const caminoDeGondor = new Camino(zonas=[lebennin,minasTirith])
-//class Camino importada
-
 class Zona
 {
+  //Guerrero Individual
   method puedePasar(guerrero) = self.criterio(guerrero)
   method atravesar(guerrero){
-    return
-      if(self.puedePasar(guerrero)) self.cambiosAlGuerrero(guerrero)
-      else throw new DomainException(message = "No puede atravesar esta zona")
+    if(self.puedePasar(guerrero)) self.cambiosAlGuerrero(guerrero)
+    else throw new DomainException(message = "No puede atravesar esta zona")
   }
   method criterio(guerrero) = true
   method cambiosAlGuerrero(guerrero) = guerrero
+
+  //Grupo
+  const requerimientoDeZona = new RequerimientoSinRestriccion()
+
+  method grupoPuedePasar(grupo) {return grupo.miembrosPuedenPasarZona(self) && requerimientoDeZona.grupoPuedePasar(grupo)}
+  method grupoAtravesar(grupo){
+    if(self.grupoPuedePasar(grupo)) grupo.miembros().forEach({guerrero => self.atravesar(guerrero)})
+    else throw new DomainException(message = "El grupo no puede atravesar esta zona")
+  }
 }
 
 class ZonaQueDemandaPoder inherits Zona
@@ -180,11 +177,14 @@ class ZonaQueDemandaArmas inherits Zona
   override method cambiosAlGuerrero(guerrero) = guerrero.perderVida(vidaAQuitar)
 }
 
-const lossarnach = new Zona()
-
 class Requerimiento
 {
   method grupoPuedePasar(grupo)
+}
+
+class RequerimientoSinRestriccion inherits Requerimiento
+{
+  override method grupoPuedePasar(grupo) = true
 }
 
 class RequerimientoDeElemento inherits Requerimiento
@@ -193,7 +193,7 @@ class RequerimientoDeElemento inherits Requerimiento
   const nombre
 
   override method grupoPuedePasar(grupo) = self.sumatoriaDeCantidad(grupo) >= cantidad
-  method sumatoriaDeCantidad(grupo) = (grupo.listaDeGuerreros()).sum({guerrero => guerrero.cantidadDeUnElemento(nombre)})
+  method sumatoriaDeCantidad(grupo) = (grupo.miembros()).sum({guerrero => guerrero.cantidadDeUnElemento(nombre)})
 }
 
 class RequerimientoDeGuerrero inherits Requerimiento
@@ -219,3 +219,39 @@ class RequerimientoDeVida inherits RequerimientoDeGuerrero
 {
   override method factor(guerrero) = guerrero.vida()
 }
+
+class Camino
+{
+  const zonas = []
+
+  //Guerrero Individual
+  method puedePasar(guerrero) = zonas.all({lugar => lugar.puedePasar(guerrero)})
+  method atravesar(guerrero){
+    if(self.puedePasar(guerrero)) zonas.forEach({lugar => lugar.atravesar(guerrero)})
+    else throw new DomainException(message = "No puede atravesar este camino")
+  }
+
+  //Grupo
+  method grupoPuedePasar(grupo) = grupo.miembrosPuedenPasarVariasZonas(zonas)
+  method grupoAtravesar(grupo){
+    if(self.grupoPuedePasar(grupo)) grupo.miembros().forEach({guerrero => self.atravesar(guerrero)})
+    else throw new DomainException(message = "Grupo no puede atravesar este camino")
+  }
+}
+
+class Grupo
+{
+  const miembros = []
+  
+  method sumarMiembro(nuevoMiembro) = miembros.add(nuevoMiembro)
+  method miembrosPuedenPasarZona(zona) = miembros.all({guerrero => zona.puedePasar(guerrero)})
+  method miembrosPuedenPasarVariasZonas(listaDeZonas) = listaDeZonas.all({zona => self.miembrosPuedenPasarZona(zona)})
+  method atravesarZona(zona) = zona.GrupoAtravesar(self)
+  method atravesarCamino(camino) = camino.GrupoAtravesar(self)
+}
+
+const lebennin = new ZonaQueDemandaPoder(poderNecesario=1500)
+const minasTirith = new ZonaQueDemandaArmas(vidaAQuitar=10)
+const lossarnach = new Zona()
+
+const caminoDeGondor = new Camino(zonas=[lebennin,minasTirith])

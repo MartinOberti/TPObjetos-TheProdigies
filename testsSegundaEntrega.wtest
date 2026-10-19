@@ -58,18 +58,43 @@ describe "Grupo de Tests para Guerreros" {
     assert.equals(50,gollum.poder())
   }
 }
-describe "Grupo de Tests para los caminos de la Tierra Media" {
-const zona = new ZonaQueDemandaPoder(poderNecesario = 1500)	
 
-test "Zona de poder, permite al guerrero con poder mayor a 1500" {
-  //const zona = new ZonaQueDemandaPoder(poderNecesario = 1500)
-  const viajero = new Maiar(vida = 110, armas = [] )
-  assert.that(zona.puedePasar(viajero))
+describe "Grupo de Tests para Zonas y Guerreros Individuales" {
+	test "Zona de poder atravesada por varios guerreros de poder distinto"{
+		const zonaTest = new ZonaQueDemandaPoder(poderNecesario=1500)	
+		const viajero1 = new Maiar(vida=105, armas=[])
+		const viajero2 = new Maiar(vida=20, armas=[])
+		assert.that(zonaTest.puedePasar(viajero1))
+		assert.notThat(zonaTest.puedePasar(viajero2))
+	}
+	test "Zona de armas atravesada por varios guerreros"{
+		const zonaTest = new ZonaQueDemandaArmas(vidaAQuitar=75)
+		const viajero1 = new Humano(vida=50, limitadorDePoder=5, armas=[anduril])
+		const viajero2 = new Humano(vida=50, limitadorDePoder=5, armas=[])
+		assert.that(zonaTest.puedePasar(viajero1))
+		assert.notThat(zonaTest.puedePasar(viajero2))
+		zonaTest.atravesar(viajero1)
+		assert.that(viajero1.estaMuerto())
+	}
 }
 
-test "Zona de poder, cuando el guerrero no tiene poder mayor a 1500"{
-	const viajero2 = new Maiar(vida = 20, armas = [] )
-	assert.notThat(zona.puedePasar(viajero2))
-}
+describe "Grupo de Tests para Caminos, Grupos y Requerimientos" {
+	const requerimiento1 = new RequerimientoDePoder(cantidadNecesaria=2000)
+	const zona1 = new ZonaQueDemandaArmas(vidaAQuitar=5, requerimientoDeZona=requerimiento1)
+	const requerimiento2 = new RequerimientoDeVida(cantidadNecesaria=50)
+	const zona2 = new ZonaQueDemandaPoder(poderNecesario=1500, requerimientoDeZona=requerimiento2)
+	const caminoTest = new Camino(zonas=[zona1,zona2])
+	const grupoTest = new Grupo(miembros=[gimli,gandalf])
 
+	test "Grupo de Gandalf y Gimli puede pasar el camino"{
+		assert.that(caminoTest.grupoPuedePasar(grupoTest))
+	}
+	test "Mismo grupo sumado por Légolas no puede pasar el camino"{
+		grupoTest.sumarMiembro(legolas)
+		assert.notThat(caminoTest.grupoPuedePasar(grupoTest))
+	}
+	test "Tom Bombadil puede pasar Lebennin pero no Minas Tirith"{
+		assert.that(lebennin.puedePasar(tomBombadil))
+		assert.notThat(minasTirith.puedePasar(tomBombadil))
+	}
 }
