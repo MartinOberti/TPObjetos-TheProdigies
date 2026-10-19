@@ -1,5 +1,5 @@
 import segundaEntrega.*
-
+import primeraEntrega.*
 describe "Grupo de Tests para el Arsenal" {
 	const enanoTest = new Enano(factorDePoder=5, vida=50)
   test "Espada con multiplicador de 15 y llevada Enano"{
@@ -59,11 +59,17 @@ describe "Grupo de Tests para Guerreros" {
   }
 }
 describe "Grupo de Tests para los caminos de la Tierra Media" {
-	
+const zona = new ZonaQueDemandaPoder(poderNecesario = 1500)	
+
 test "Zona de poder, permite al guerrero con poder mayor a 1500" {
-  const zona = new ZonaQueDemandaPoder(poderNecesario = 1500)
+  //const zona = new ZonaQueDemandaPoder(poderNecesario = 1500)
   const viajero = new Maiar(vida = 110, armas = [] )
   assert.that(zona.puedePasar(viajero))
+}
+
+test "Zona de poder, cuando el guerrero no tiene poder mayor a 1500"{
+	const viajero2 = new Maiar(vida = 20, armas = [] )
+	assert.notThat(zona.puedePasar(viajero2))
 }
 
 }

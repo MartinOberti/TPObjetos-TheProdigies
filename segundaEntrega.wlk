@@ -2,7 +2,8 @@
 /*-------------------------PARTE 1-------------------------*/
 import primeraEntrega.Baculo
 import primeraEntrega.Camino
-
+import primeraEntrega.lebennin
+import primeraEntrega.minasTirith
 class Espada
 {
 	const poderBase
@@ -44,9 +45,10 @@ class Guerrero
   method poder()
   method cantidadDeArmas() = armas.size()
   method cantidadDeElementos() = elementos.size()
+  method tieneArmas() = !armas.isEmpty()
   method poderDeArmas() = armas.sum({arma => arma.poder(self)})
   method tienePocaVida() = self.vida() < 10
-  method perderVida(valor) {vida = 0.max(self.vida() - valor)}
+  method cambiarVida(valor) {vida = 0.max(self.vida() + valor)}
 	method esElfo() = self.kindName() == "an Elfo"
 	method esEnano() = self.kindName() == "an Enano"
 	method esHumano() = self.kindName() == "a Humano"
@@ -143,12 +145,12 @@ class Grupo
   const property listaDeGuerreros = []
   
   method recorrerCamino(camino) {
-    
-    listaDeGuerreros.forEach({guerrero => camino.atravesar(guerrero)}) 
+
+  listaDeGuerreros.forEach({guerrero => camino.atravesar(guerrero)}) 
     
   } 
 }
-
+const caminoDeGondor = new Camino(zonas=[lebennin,minasTirith])
 //class Camino importada
 
 class Zona
