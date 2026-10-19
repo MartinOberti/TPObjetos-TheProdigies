@@ -27,8 +27,8 @@ class Daga inherits Espada
 
 class Hacha
 {
-	const mango
-	const hoja
+	var property mango =  1
+	var property hoja =  1
 
 	method poder(guerrero) = mango * hoja
 }
@@ -83,13 +83,9 @@ class Enano inherits PoderGuerrero
   override method modificadorDePoder() = factorDePoder
 }
 
-class ElfoBase inherits PoderGuerrero
+class Elfo inherits PoderGuerrero
 {
   var property destrezaBase = 2
-}
-
-class Elfo inherits ElfoBase
-{
   var property destrezaPropia
 
   override method modificadorDePoder() = (destrezaBase + destrezaPropia)
@@ -105,8 +101,8 @@ class Humano inherits Guerrero
 
 class Maiar inherits Guerrero
 {
-  const poderBasico = 15
-  const poderBajoAmenaza = 300
+  var property poderBasico = 15
+  var property poderBajoAmenaza = 300
 
   override method poder() = vida * self.factorActual() + 2 * self.poderDeArmas()
   method factorActual() = if(self.tienePocaVida()) poderBajoAmenaza else poderBasico
@@ -145,8 +141,12 @@ const gandalf = new Maiar(vida = 100, armas = [glamdring, baculoDeGandalf])
 class Grupo
 {
   const property listaDeGuerreros = []
-
-  method recorrerCamino(camino) = 
+  
+  method recorrerCamino(camino) {
+    
+    listaDeGuerreros.forEach({guerrero => camino.atravesar(guerrero)}) 
+    
+  } 
 }
 
 //class Camino importada
