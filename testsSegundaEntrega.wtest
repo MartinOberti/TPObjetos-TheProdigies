@@ -1,23 +1,26 @@
-import segundaEntrega.*
-import primeraEntrega.*
+import entrega2y3.*
+
+//Táctica auxiliar para tests.
+const tacticaAux = new TacticaAgil()
+
 describe "Grupo de Tests para el Arsenal" {
-	const enanoTest = new Enano(factorDePoder=5, vida=50)
+	const enanoTest = new Enano(factorDePoder=5, vida=50, tactica=tacticaAux)
   test "Espada con multiplicador de 15 y llevada Enano"{
 		const espadaTest = new Espada(poderBase=15)
 		assert.equals(300,espadaTest.poder(enanoTest))
   }
 	test "Espada con multiplicador de 5 y llevada por guerrero con 3 armas"{
 		const espadaTest = new Espada(poderBase=5)
-		assert.equals(150,espadaTest.poder(object inherits Hobbit(vida=50){override method cantidadDeArmas()=3}))
+		assert.equals(150,espadaTest.poder(object inherits Hobbit(vida=50, tactica=tacticaAux){override method cantidadDeArmas()=3}))
 	}
 	test "Daga con multiplicador 20 y lleva Élfico"{
 		const dagaTest = new Daga(poderBase=20)
-		const elfoTest = new Elfo(destrezaPropia=5, vida=50)
+		const elfoTest = new Elfo(destrezaPropia=5, vida=50, tactica=tacticaAux)
 		assert.equals(250,dagaTest.poder(elfoTest))
 	}
 	test "Daga con multiplicador 10 y lleva Humano"{
 		const dagaTest = new Daga(poderBase=10)
-		const humanoTest = new Humano(limitadorDePoder=5,vida=50)
+		const humanoTest = new Humano(limitadorDePoder=5,vida=50, tactica=tacticaAux)
 		assert.equals(75,dagaTest.poder(humanoTest))
 	}
 	test "Hacha con mango de 50cm, con una hoja de 5kg"{
@@ -62,15 +65,15 @@ describe "Grupo de Tests para Guerreros" {
 describe "Grupo de Tests para Zonas y Guerreros Individuales" {
 	test "Zona de poder atravesada por varios guerreros de poder distinto"{
 		const zonaTest = new ZonaQueDemandaPoder(poderNecesario=1500)	
-		const viajero1 = new Maiar(vida=105, armas=[])
-		const viajero2 = new Maiar(vida=20, armas=[])
+		const viajero1 = new Maiar(vida=105, armas=[], tactica=tacticaAux)
+		const viajero2 = new Maiar(vida=20, armas=[], tactica=tacticaAux)
 		assert.that(zonaTest.puedePasar(viajero1))
 		assert.notThat(zonaTest.puedePasar(viajero2))
 	}
 	test "Zona de armas atravesada por varios guerreros"{
 		const zonaTest = new ZonaQueDemandaArmas(vidaAQuitar=75)
-		const viajero1 = new Humano(vida=50, limitadorDePoder=5, armas=[anduril])
-		const viajero2 = new Humano(vida=50, limitadorDePoder=5, armas=[])
+		const viajero1 = new Humano(vida=50, limitadorDePoder=5, armas=[anduril], tactica=tacticaAux)
+		const viajero2 = new Humano(vida=50, limitadorDePoder=5, armas=[], tactica=tacticaAux)
 		assert.that(zonaTest.puedePasar(viajero1))
 		assert.notThat(zonaTest.puedePasar(viajero2))
 		zonaTest.atravesar(viajero1)
@@ -78,7 +81,7 @@ describe "Grupo de Tests para Zonas y Guerreros Individuales" {
 	}
 }
 
-describe "Grupo de Tests para Caminos, Grupos y Requerimientos" {
+describe "Grupo de Tests para Caminos, Grupos y Requerimientos Generales" {
 	const requerimiento1 = new RequerimientoDePoder(cantidadNecesaria=2000)
 	const zona1 = new ZonaQueDemandaArmas(vidaAQuitar=5, requerimientoDeZona=requerimiento1)
 	const requerimiento2 = new RequerimientoDeVida(cantidadNecesaria=50)
@@ -96,5 +99,21 @@ describe "Grupo de Tests para Caminos, Grupos y Requerimientos" {
 	test "Tom Bombadil puede pasar Lebennin pero no Minas Tirith"{
 		assert.that(lebennin.puedePasar(tomBombadil))
 		assert.notThat(minasTirith.puedePasar(tomBombadil))
+	}
+}
+
+describe "Grupo de Tests para una Zona con Requerimiento de Elementos" {
+	const requerimientoTest = new RequerimientoDeElemento(cantidad=30, nombreDeElemento="Lembas")
+	const zonaTest = new ZonaQueDemandaPoder(poderNecesario=25, requerimientoDeZona=requerimientoTest)
+	const viajero1 = new Humano(vida=50, limitadorDePoder=5, elementos=[new Elemento(cantidad=16, nombre="Lembas")], tactica=tacticaAux)
+	const viajero2 = new Humano(vida=50, limitadorDePoder=5, elementos=[new Elemento(cantidad=16, nombre="Lembas")], tactica=tacticaAux)
+	const grupoTest = new Grupo(miembros=[viajero1])
+
+	test "Grupo de una persona no puede pasar el requerimiento de la zona"{
+		assert.notThat(zonaTest.grupoPuedePasar(grupoTest))
+	}
+	test "Grupo de dos personas puede pasar el requerimiento de la zona"{
+		grupoTest.sumarMiembro(viajero2)
+		assert.that(zonaTest.grupoPuedePasar(grupoTest))
 	}
 }
