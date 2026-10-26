@@ -40,6 +40,7 @@ class Guerrero
   const armas = []
   const elementos = []
 
+
   method poder()
   method cantidadDeArmas() = armas.size()
   method cantidadDeElementos() = elementos.size()
@@ -58,7 +59,16 @@ class Guerrero
     const aux = elementos.filter({elemento => elemento.mismoNombre(nombre)})
     return aux.sum({elemento => elemento.cantidad()})
   }
-}
+
+  /* tercera entrega*/
+  /*var tactica*/
+  method tieneVida()= vida > 0
+  method ataque(oponente) {
+     oponente.perderVida(self.poder()*0.1)
+    }
+  
+  }
+
 
 class Elemento
 {
@@ -149,6 +159,7 @@ class Zona
     if(self.puedePasar(guerrero)) self.cambiosAlGuerrero(guerrero)
     else throw new DomainException(message = "No puede atravesar esta zona")
   }
+
   method criterio(guerrero) = true
   method cambiosAlGuerrero(guerrero) = guerrero
 
