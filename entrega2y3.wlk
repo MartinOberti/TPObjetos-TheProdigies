@@ -39,8 +39,8 @@ class Guerrero
   var property vida
   const armas = []
   const elementos = []
-  var archienemigo
-  var mejorAmigo
+  var property archienemigo
+  var property mejorAmigo
 
   method poder()
   method cantidadDeArmas() = armas.size()
@@ -68,6 +68,12 @@ class Guerrero
 
   method poderDeAtaque() = tactica.poderDeAtaque(self)
   method enfrentarse(contrincante) = tactica.enfrentarse(self,contrincante)
+
+  // Anillo
+  const anillo 
+  method usarAnillo(){
+    anillo.invocarAnillo()
+  }
 }
 
 class Elemento
@@ -121,38 +127,48 @@ class Maiar inherits Guerrero
   method factorActual() = if(self.tienePocaVida()) poderBajoAmenaza else poderBasico
 }
 
-object gollum inherits Hobbit(vida = 100, tactica = new TacticaCaruso(umbralDeEnergia=10), archienemigo = tomBombadil, mejorAmigo=frodo)
+object gollum inherits Hobbit(vida = 100, tactica = new TacticaCaruso(umbralDeEnergia=10),anillo = anilloUnico, archienemigo = tomBombadil, mejorAmigo=frodo)
 {
   override method poder() = super()/2
 }
 
-object tomBombadil inherits Guerrero(vida = 100, tactica = new TacticaCuatroTresTres(),archienemigo = gollum,mejorAmigo = frodo)
+object tomBombadil inherits Guerrero(vida = 100, tactica = new TacticaCuatroTresTres(),anillo=anilloMaldito,archienemigo = gollum,mejorAmigo = frodo)
 {
   override method poder() = 10000000
 }
+const anilloMaldito= new AnilloMaldito(duenio=tomBombadil)
 
 const dagaDeFrodo = new Daga(poderBase = 8)
 const tacticaFrodo = new TacticaCaruso(umbralDeEnergia = 75)
-const frodo = new Hobbit(vida = 50, armas = [dagaDeFrodo], elementos = [], tactica = tacticaFrodo,archienemigo = gollum,mejorAmigo = frodo)
+const anilloFuego = new AnilloFuego (duenio=frodo)
+const frodo = new Hobbit(vida = 50, armas = [dagaDeFrodo], elementos = [], tactica = tacticaFrodo,anillo= anilloFuego,archienemigo = gollum,mejorAmigo = frodo)
+
 
 const hachaDeGimli1 = new Hacha(mango = 70, hoja = 5)
 const hachaDeGimli2 = new Hacha(mango = 70, hoja = 5)
 const tacticaGimli = new TacticaAgil()
-const gimli = new Enano(vida = 75, factorDePoder = 3, armas = [hachaDeGimli1,hachaDeGimli2], tactica = tacticaGimli,archienemigo = gollum, mejorAmigo = frodo)
+const anilloAire = new AnilloAire(duenio=gimli)
+const gimli = new Enano(vida = 75, factorDePoder = 3, armas = [hachaDeGimli1,hachaDeGimli2], tactica = tacticaGimli,anillo= anilloAire,archienemigo = gollum, mejorAmigo = frodo)
+
 
 const espadaDeLegolas = new Espada(poderBase = 12)
 const tacticaLegolas = new TacticaAgil()
-const legolas = new Elfo(vida = 80, destrezaPropia = 1, armas = [espadaDeLegolas], tactica = tacticaLegolas,archienemigo = gollum, mejorAmigo = frodo)
+const anilloFuego2 = new AnilloFuego (duenio=legolas)
+const legolas = new Elfo(vida = 80, destrezaPropia = 1, armas = [espadaDeLegolas], tactica = tacticaLegolas,anillo= anilloFuego2, archienemigo = gollum, mejorAmigo = frodo)
+
 
 const anduril = new Espada(poderBase = 18)
 const dagaDeAragorn = new Daga(poderBase = 10)
 const tacticaAragorn = new TacticaResistencia()
-const aragorn = new Humano(vida = 85, limitadorDePoder = 20, armas = [anduril, dagaDeAragorn], tactica = tacticaAragorn,archienemigo = gandalf,mejorAmigo = glamdring)
+const anilloMaldito2= new AnilloMaldito(duenio=aragorn)
+const aragorn = new Humano(vida = 85, limitadorDePoder = 20, armas = [anduril, dagaDeAragorn], tactica = tacticaAragorn,anillo= anilloMaldito2,archienemigo = gandalf,mejorAmigo = glamdring)
+
 
 const glamdring = new Espada(poderBase = 10)
 const baculoDeGandalf = new Baculo(poderBase = 400)
 const tacticaGandalf = new TacticaCuatroTresTres()
-const gandalf = new Maiar(vida = 100, armas = [glamdring, baculoDeGandalf], tactica = tacticaGandalf,archienemigo = gollum,mejorAmigo = frodo)
+const anilloAire2 = new AnilloAire (duenio=gandalf)
+const gandalf = new Maiar(vida = 100, armas = [glamdring, baculoDeGandalf], tactica = tacticaGandalf,anillo=anilloAire2,archienemigo = gollum,mejorAmigo =tomBombadil)
 
 /*-------------------------PARTE 3-------------------------*/
 
@@ -341,7 +357,7 @@ class Anillo {
   var duenio
   method invocarAnillo(){
     duenio.vida((duenio.vida()*2).min(100))
-    duenio.efecto()
+    self.efecto()
   }
   method efecto()
 }

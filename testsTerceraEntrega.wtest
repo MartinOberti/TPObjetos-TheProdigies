@@ -1,3 +1,4 @@
+import entrega1.*
 import entrega2y3.*
 
 describe "Tests para las Tácticas de Combate" {
@@ -24,5 +25,16 @@ describe "Tests para las Tácticas de Combate" {
   test "Un guerrero muerto no puede enfrentarse con nadie"{
     frodo.matar()
     assert.throwsException({frodo.enfrentarse(tomBombadil)})
+  }
+}
+describe "Tests para los Anillos" {
+  test "frodo usa su anillo de fuego"{
+   
+    frodo.usarAnillo()
+    assert.that(gollum.vida()==70)
+  }
+  test "gollum usa su anillo Unico"{
+    gollum.usarAnillo()
+    assert.that(gollum.vida()==70)
   }
 }
