@@ -1,4 +1,4 @@
-import entrega1.*
+
 import entrega2y3.*
 
 describe "Tests para las Tácticas de Combate" {

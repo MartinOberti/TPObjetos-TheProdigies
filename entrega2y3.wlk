@@ -354,7 +354,7 @@ class TacticaCuatroTresTres inherits Tactica
 /*-------------------------PARTE 2-------------------------*/
 
 class Anillo {
-  var duenio
+  const duenio
   method invocarAnillo(){
     duenio.vida((duenio.vida()*2).min(100))
     self.efecto()
