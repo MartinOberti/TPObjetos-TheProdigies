@@ -39,7 +39,8 @@ class Guerrero
   var property vida
   const armas = []
   const elementos = []
-
+  var archienemigo
+  var mejorAmigo
 
   method poder()
   method cantidadDeArmas() = armas.size()
@@ -120,38 +121,38 @@ class Maiar inherits Guerrero
   method factorActual() = if(self.tienePocaVida()) poderBajoAmenaza else poderBasico
 }
 
-object gollum inherits Hobbit(vida = 100, tactica = new TacticaCaruso(umbralDeEnergia=10))
+object gollum inherits Hobbit(vida = 100, tactica = new TacticaCaruso(umbralDeEnergia=10), archienemigo = tomBombadil, mejorAmigo=frodo)
 {
   override method poder() = super()/2
 }
 
-object tomBombadil inherits Guerrero(vida = 100, tactica = new TacticaCuatroTresTres())
+object tomBombadil inherits Guerrero(vida = 100, tactica = new TacticaCuatroTresTres(),archienemigo = gollum,mejorAmigo = frodo)
 {
   override method poder() = 10000000
 }
 
 const dagaDeFrodo = new Daga(poderBase = 8)
 const tacticaFrodo = new TacticaCaruso(umbralDeEnergia = 75)
-const frodo = new Hobbit(vida = 50, armas = [dagaDeFrodo], elementos = [], tactica = tacticaFrodo)
+const frodo = new Hobbit(vida = 50, armas = [dagaDeFrodo], elementos = [], tactica = tacticaFrodo,archienemigo = gollum,mejorAmigo = frodo)
 
 const hachaDeGimli1 = new Hacha(mango = 70, hoja = 5)
 const hachaDeGimli2 = new Hacha(mango = 70, hoja = 5)
 const tacticaGimli = new TacticaAgil()
-const gimli = new Enano(vida = 75, factorDePoder = 3, armas = [hachaDeGimli1,hachaDeGimli2], tactica = tacticaGimli)
+const gimli = new Enano(vida = 75, factorDePoder = 3, armas = [hachaDeGimli1,hachaDeGimli2], tactica = tacticaGimli,archienemigo = gollum, mejorAmigo = frodo)
 
 const espadaDeLegolas = new Espada(poderBase = 12)
 const tacticaLegolas = new TacticaAgil()
-const legolas = new Elfo(vida = 80, destrezaPropia = 1, armas = [espadaDeLegolas], tactica = tacticaLegolas)
+const legolas = new Elfo(vida = 80, destrezaPropia = 1, armas = [espadaDeLegolas], tactica = tacticaLegolas,archienemigo = gollum, mejorAmigo = frodo)
 
 const anduril = new Espada(poderBase = 18)
 const dagaDeAragorn = new Daga(poderBase = 10)
 const tacticaAragorn = new TacticaResistencia()
-const aragorn = new Humano(vida = 85, limitadorDePoder = 20, armas = [anduril, dagaDeAragorn], tactica = tacticaAragorn)
+const aragorn = new Humano(vida = 85, limitadorDePoder = 20, armas = [anduril, dagaDeAragorn], tactica = tacticaAragorn,archienemigo = gandalf,mejorAmigo = glamdring)
 
 const glamdring = new Espada(poderBase = 10)
 const baculoDeGandalf = new Baculo(poderBase = 400)
 const tacticaGandalf = new TacticaCuatroTresTres()
-const gandalf = new Maiar(vida = 100, armas = [glamdring, baculoDeGandalf], tactica = tacticaGandalf)
+const gandalf = new Maiar(vida = 100, armas = [glamdring, baculoDeGandalf], tactica = tacticaGandalf,archienemigo = gollum,mejorAmigo = frodo)
 
 /*-------------------------PARTE 3-------------------------*/
 
@@ -338,35 +339,35 @@ class TacticaCuatroTresTres inherits Tactica
 
 class Anillo {
   var duenio
-  method invocarAnillo(persona){
+  method invocarAnillo(){
     duenio.vida((duenio.vida()*2).min(100))
-    duenio.efecto(persona)
+    duenio.efecto()
   }
-  method efecto(persona)
+  method efecto()
 }
 
 class AnilloFuego inherits Anillo{
-override method efecto(archienemigo){
-  duenio.enfrentarse(archienemigo)
-  archienemigo.perderVida(20)
+override method efecto(){
+  duenio.enfrentarse(duenio.archienemigo())
+  duenio.archienemigo().perderVida(20)
 }
 }
 
 class AnilloMaldito inherits Anillo{
-  override method efecto(persona){
+  override method efecto(){
 (duenio.armas().max({arma=>arma.poder()})).remove()
 }
 }
 
 class AnilloAire inherits Anillo{
-  override method efecto(mejorAmigo){
-    mejorAmigo.aumentarVida(30)
+  override method efecto(){
+    duenio.mejorAmigo().aumentarVida(30)
   }
 }
 
 object anilloUnico inherits Anillo(duenio=gollum) {
 
-override method efecto(persona){
+override method efecto(){
 if(duenio.cantidadDeArmas()>3){
     duenio.perderVida(20)
 }  
