@@ -1,7 +1,6 @@
-
 import entrega2y3.*
 
-describe "Tests para las Tácticas de Combate" {
+describe "Grupo de Tests para las Tácticas de Combate" {
   test "Légolas se enfrenta contra Gandalf. Ambos mueren"{
     legolas.enfrentarse(gandalf)
     assert.that(legolas.estaMuerto())
@@ -27,14 +26,55 @@ describe "Tests para las Tácticas de Combate" {
     assert.throwsException({frodo.enfrentarse(tomBombadil)})
   }
 }
-describe "Tests para los Anillos" {
-  test "frodo usa su anillo de fuego"{
-   
-    frodo.usarAnillo()
-    assert.that(gollum.vida()==70)
+
+describe "Grupo de Tests para Penalidades de Caminos" {
+  const penalidad1 = new PenalidadDeMuerte()
+  const penalidad2 = new PenalidadDeDanio(valorQuitado=25)
+  const penalidad3 = new PenalidadDeArma()
+  const zonaTest = new ZonaQueDemandaPoder(poderNecesario=2500)
+
+  test "Gimli no puede atravesar el camino y pierde una de sus armas"{
+    const caminoTest = new Camino(zonas=[zonaTest],penalidades=[penalidad3])
+    caminoTest.atravesar(gimli)
+    assert.equals(1,gimli.cantidadDeArmas())
   }
-  test "gollum usa su anillo Unico"{
+  test "Legolas no puede atravesar el camino y pierde 25 puntos de vida"{
+    const caminoTest = new Camino(zonas=[zonaTest],penalidades=[penalidad2])
+    caminoTest.atravesar(legolas)
+    assert.equals(55,legolas.vida())
+  }
+  test "Frodo no puede atravesar el camino, se muere y pierde su única arma"{
+    const caminoTest = new Camino(zonas=[zonaTest],penalidades=[penalidad1,penalidad3])
+    caminoTest.atravesar(frodo)
+    assert.that(frodo.estaMuerto())
+    assert.notThat(frodo.tieneArmas())
+  }
+  test "Grupo de Gandalf y Tom Bombadil puede atravesar la zona y no recibe ninguna penalidad"{
+    const caminoTest = new Camino(zonas=[zonaTest],penalidades=[penalidad1,penalidad2,penalidad3])
+    const grupoTest = new Grupo(miembros=[gandalf,tomBombadil])
+    caminoTest.grupoAtravesar(grupoTest)
+    assert.equals(100,gandalf.vida())
+    assert.that(gandalf.estaVivo())
+    assert.equals(2,gandalf.cantidadDeArmas())
+    assert.that(tomBombadil.estaVivo())
+  }
+}
+
+describe "Grupo de Tests para los Anillos" {
+  test "Frodo usa su anillo de fuego"{
+    frodo.usarAnillo()
+    assert.equals(70,gollum.vida())
+  }
+  test "Aragorn usa su anillo y pierde su arma más poderosa"{
+    aragorn.usarAnillo()
+    assert.equals(1,aragorn.cantidadDeArmas())
+  }
+  test "Gimli usa su anillo de aire"{
+    gimli.usarAnillo()
+    assert.equals(80,frodo.vida())
+  }
+  test "Gollum usa su anillo único"{
     gollum.usarAnillo()
-    assert.that(gollum.vida()==70)
+    assert.equals(70,gollum.vida())
   }
 }

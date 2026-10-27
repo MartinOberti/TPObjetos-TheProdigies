@@ -46,7 +46,9 @@ class Guerrero
   method cantidadDeArmas() = armas.size()
   method cantidadDeElementos() = elementos.size()
   method tieneArmas() = !armas.isEmpty()
+  method sacarArma(arma) = armas.remove(arma)
   method poderDeArmas() = armas.sum({arma => arma.poder(self)})
+  method armaMasPoderosa() = armas.max({arma => arma.poder(self)})
   method tienePocaVida() = self.vida() < 10
   method aumentarVida(valor) {vida = 0.max(self.vida() + valor)}
   method perderVida(valor) {vida = 0.max(self.vida() - valor)}
@@ -132,7 +134,7 @@ object gollum inherits Hobbit(vida = 100, tactica = new TacticaCaruso(umbralDeEn
   override method poder() = super()/2
 }
 
-object tomBombadil inherits Guerrero(vida = 100, tactica = new TacticaCuatroTresTres(),anillo=anilloMaldito,archienemigo = gollum,mejorAmigo = frodo)
+object tomBombadil inherits Guerrero(vida = 100, tactica = new TacticaCuatroTresTres(),anillo=anilloMaldito, archienemigo = gollum, mejorAmigo = frodo)
 {
   override method poder() = 10000000
 }
@@ -141,14 +143,14 @@ const anilloMaldito= new AnilloMaldito(duenio=tomBombadil)
 const dagaDeFrodo = new Daga(poderBase = 8)
 const tacticaFrodo = new TacticaCaruso(umbralDeEnergia = 75)
 const anilloFuego = new AnilloFuego (duenio=frodo)
-const frodo = new Hobbit(vida = 50, armas = [dagaDeFrodo], elementos = [], tactica = tacticaFrodo,anillo= anilloFuego,archienemigo = gollum,mejorAmigo = frodo)
+const frodo = new Hobbit(vida = 50, armas = [dagaDeFrodo], elementos = [], tactica = tacticaFrodo, anillo= anilloFuego, archienemigo = gollum, mejorAmigo = frodo)
 
 
 const hachaDeGimli1 = new Hacha(mango = 70, hoja = 5)
 const hachaDeGimli2 = new Hacha(mango = 70, hoja = 5)
 const tacticaGimli = new TacticaAgil()
 const anilloAire = new AnilloAire(duenio=gimli)
-const gimli = new Enano(vida = 75, factorDePoder = 3, armas = [hachaDeGimli1,hachaDeGimli2], tactica = tacticaGimli,anillo= anilloAire,archienemigo = gollum, mejorAmigo = frodo)
+const gimli = new Enano(vida = 75, factorDePoder = 3, armas = [hachaDeGimli1,hachaDeGimli2], tactica = tacticaGimli, anillo= anilloAire, archienemigo = gollum, mejorAmigo = frodo)
 
 
 const espadaDeLegolas = new Espada(poderBase = 12)
@@ -160,7 +162,7 @@ const legolas = new Elfo(vida = 80, destrezaPropia = 1, armas = [espadaDeLegolas
 const anduril = new Espada(poderBase = 18)
 const dagaDeAragorn = new Daga(poderBase = 10)
 const tacticaAragorn = new TacticaResistencia()
-const anilloMaldito2= new AnilloMaldito(duenio=aragorn)
+const anilloMaldito2 = new AnilloMaldito(duenio=aragorn)
 const aragorn = new Humano(vida = 85, limitadorDePoder = 20, armas = [anduril, dagaDeAragorn], tactica = tacticaAragorn,anillo= anilloMaldito2,archienemigo = gandalf,mejorAmigo = glamdring)
 
 
@@ -255,19 +257,26 @@ class RequerimientoDeVida inherits RequerimientoDeGuerrero
 class Camino
 {
   const zonas = []
+  var property penalidades = []           //Entrega 3 - Parte 2
 
   //Guerrero Individual
   method puedePasar(guerrero) = zonas.all({lugar => lugar.puedePasar(guerrero)})
   method atravesar(guerrero){
     if(self.puedePasar(guerrero)) zonas.forEach({lugar => lugar.atravesar(guerrero)})
-    else throw new DomainException(message = "No puede atravesar este camino")
+    else{
+      penalidades.forEach({penalidad => penalidad.sufrirPenalidad(guerrero)})
+      console.println("No puede atravesar este camino")
+    }
   }
 
   //Grupo
   method grupoPuedePasar(grupo) = grupo.miembros().all({guerrero => self.puedePasar(guerrero)})
   method grupoAtravesar(grupo){
     if(self.grupoPuedePasar(grupo)) grupo.miembros().forEach({guerrero => self.atravesar(guerrero)})
-    else throw new DomainException(message = "Grupo no puede atravesar este camino")
+    else{
+      penalidades.forEach({penalidad => penalidad.grupoSufrirPenalidad(grupo)})
+      console.println("No puede atravesar este camino")
+    }
   }
 }
 
@@ -353,7 +362,33 @@ class TacticaCuatroTresTres inherits Tactica
 
 /*-------------------------PARTE 2-------------------------*/
 
-class Anillo {
+class Penalidad
+{
+  method sufrirPenalidad(guerrero)
+  method grupoSufrirPenalidad(grupo) = grupo.miembros().forEach({guerrero => self.sufrirPenalidad(guerrero)})
+}
+
+class PenalidadDeMuerte inherits Penalidad
+{
+  override method sufrirPenalidad(guerrero) = guerrero.matar()
+}
+
+class PenalidadDeDanio inherits Penalidad
+{
+  var property valorQuitado
+
+  override method sufrirPenalidad(guerrero) = guerrero.perderVida(valorQuitado)
+}
+
+class PenalidadDeArma inherits Penalidad
+{
+  override method sufrirPenalidad(guerrero) = if(guerrero.tieneArmas()) guerrero.sacarArma(guerrero.armaMasPoderosa())
+}
+
+/*-------------------------PARTE 3-------------------------*/
+
+class Anillo
+{
   const duenio
   method invocarAnillo(){
     duenio.vida((duenio.vida()*2).min(100))
@@ -362,34 +397,28 @@ class Anillo {
   method efecto()
 }
 
-class AnilloFuego inherits Anillo{
-override method efecto(){
-  duenio.enfrentarse(duenio.archienemigo())
-  duenio.archienemigo().perderVida(20)
-}
-}
-
-class AnilloMaldito inherits Anillo{
+class AnilloFuego inherits Anillo
+{
   override method efecto(){
-(duenio.armas().max({arma=>arma.poder()})).remove()
-}
-}
-
-class AnilloAire inherits Anillo{
-  override method efecto(){
-    duenio.mejorAmigo().aumentarVida(30)
+    duenio.enfrentarse(duenio.archienemigo())
+    duenio.archienemigo().perderVida(20)
   }
 }
 
-object anilloUnico inherits Anillo(duenio=gollum) {
-
-override method efecto(){
-if(duenio.cantidadDeArmas()>3){
-    duenio.perderVida(20)
-}  
-else
+class AnilloMaldito inherits Anillo
 {
-  duenio.perderVida(30)
+  override method efecto() = duenio.sacarArma(duenio.armaMasPoderosa())
 }
+
+class AnilloAire inherits Anillo
+{
+  override method efecto() = duenio.mejorAmigo().aumentarVida(30)
 }
+
+object anilloUnico inherits Anillo(duenio=gollum)
+{
+  override method efecto(){
+    if(duenio.cantidadDeArmas()>3) duenio.perderVida(20)
+    else duenio.perderVida(30)
+  }
 }
