@@ -61,9 +61,10 @@ describe "Grupo de Tests para Penalidades de Caminos" {
 }
 
 describe "Grupo de Tests para los Anillos" {
-  test "Frodo usa su anillo de fuego"{
+  test "Frodo usa su anillo de fuego, ataca a Gollum y recibe su contraataque"{
     frodo.usarAnillo()
     assert.equals(70,gollum.vida())
+    assert.equals(95.5,frodo.vida())
   }
   test "Aragorn usa su anillo y pierde su arma más poderosa"{
     aragorn.usarAnillo()
