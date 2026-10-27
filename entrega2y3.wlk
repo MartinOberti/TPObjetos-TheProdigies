@@ -1,6 +1,6 @@
 /*=====================SEGUNDA ENTREGA=====================*/
 /*-------------------------PARTE 1-------------------------*/
-import primeraEntrega.Baculo
+import entrega1.Baculo
 
 class Espada
 {
@@ -50,6 +50,8 @@ class Guerrero
   method aumentarVida(valor) {vida = 0.max(self.vida() + valor)}
   method perderVida(valor) {vida = 0.max(self.vida() - valor)}
   method estaMuerto() = vida == 0
+  method estaVivo() = vida > 0
+  method matar() {vida=0}
 	method esElfo() = self.kindName() == "an Elfo"
 	method esEnano() = self.kindName() == "an Enano"
 	method esHumano() = self.kindName() == "a Humano"
@@ -60,22 +62,19 @@ class Guerrero
     return aux.sum({elemento => elemento.cantidad()})
   }
 
-  /* tercera entrega*/
-  /*var tactica*/
-  method tieneVida()= vida > 0
-  method ataque(oponente) {
-     oponente.perderVida(self.poder()*0.1)
-    }
-  
-  }
+  //Métodos de Combate
+  const tactica
 
+  method poderDeAtaque() = tactica.poderDeAtaque(self)
+  method enfrentarse(contrincante) = tactica.enfrentarse(self,contrincante)
+}
 
 class Elemento
 {
   var property cantidad
+  var property nombre
 
-  method nombre() = self.kindName()
-  method mismoNombre(nombre) = nombre == self.nombre()
+  method mismoNombre(unNombre) = nombre == unNombre
 }
 
 class PoderGuerrero inherits Guerrero
@@ -121,33 +120,38 @@ class Maiar inherits Guerrero
   method factorActual() = if(self.tienePocaVida()) poderBajoAmenaza else poderBasico
 }
 
-object gollum inherits Hobbit(vida = 100)
+object gollum inherits Hobbit(vida = 100, tactica = new TacticaCaruso(umbralDeEnergia=10))
 {
   override method poder() = super()/2
 }
 
-object tomBombadil inherits Guerrero(vida = 100)
+object tomBombadil inherits Guerrero(vida = 100, tactica = new TacticaCuatroTresTres())
 {
   override method poder() = 10000000
 }
 
 const dagaDeFrodo = new Daga(poderBase = 8)
-const frodo = new Hobbit(vida = 50, armas = [dagaDeFrodo], elementos = [])
+const tacticaFrodo = new TacticaCaruso(umbralDeEnergia = 75)
+const frodo = new Hobbit(vida = 50, armas = [dagaDeFrodo], elementos = [], tactica = tacticaFrodo)
 
 const hachaDeGimli1 = new Hacha(mango = 70, hoja = 5)
 const hachaDeGimli2 = new Hacha(mango = 70, hoja = 5)
-const gimli = new Enano(vida = 75, factorDePoder = 3, armas = [hachaDeGimli1,hachaDeGimli2])
+const tacticaGimli = new TacticaAgil()
+const gimli = new Enano(vida = 75, factorDePoder = 3, armas = [hachaDeGimli1,hachaDeGimli2], tactica = tacticaGimli)
 
 const espadaDeLegolas = new Espada(poderBase = 12)
-const legolas = new Elfo(vida = 80, destrezaPropia = 1, armas = [espadaDeLegolas])
+const tacticaLegolas = new TacticaAgil()
+const legolas = new Elfo(vida = 80, destrezaPropia = 1, armas = [espadaDeLegolas], tactica = tacticaLegolas)
 
 const anduril = new Espada(poderBase = 18)
 const dagaDeAragorn = new Daga(poderBase = 10)
-const aragorn = new Humano(vida = 85, limitadorDePoder = 20, armas = [anduril, dagaDeAragorn])
+const tacticaAragorn = new TacticaResistencia()
+const aragorn = new Humano(vida = 85, limitadorDePoder = 20, armas = [anduril, dagaDeAragorn], tactica = tacticaAragorn)
 
 const glamdring = new Espada(poderBase = 10)
 const baculoDeGandalf = new Baculo(poderBase = 400)
-const gandalf = new Maiar(vida = 100, armas = [glamdring, baculoDeGandalf])
+const tacticaGandalf = new TacticaCuatroTresTres()
+const gandalf = new Maiar(vida = 100, armas = [glamdring, baculoDeGandalf], tactica = tacticaGandalf)
 
 /*-------------------------PARTE 3-------------------------*/
 
@@ -166,7 +170,7 @@ class Zona
   //Grupo
   const requerimientoDeZona = new RequerimientoSinRestriccion()
 
-  method grupoPuedePasar(grupo) {return grupo.miembrosPuedenPasarZona(self) && requerimientoDeZona.grupoPuedePasar(grupo)}
+  method grupoPuedePasar(grupo) {return grupo.miembros().all({guerrero => self.puedePasar(guerrero)}) && requerimientoDeZona.grupoPuedePasar(grupo)}
   method grupoAtravesar(grupo){
     if(self.grupoPuedePasar(grupo)) grupo.miembros().forEach({guerrero => self.atravesar(guerrero)})
     else throw new DomainException(message = "El grupo no puede atravesar esta zona")
@@ -201,10 +205,10 @@ class RequerimientoSinRestriccion inherits Requerimiento
 class RequerimientoDeElemento inherits Requerimiento
 {
   const cantidad
-  const nombre
+  const nombreDeElemento
 
   override method grupoPuedePasar(grupo) = self.sumatoriaDeCantidad(grupo) >= cantidad
-  method sumatoriaDeCantidad(grupo) = (grupo.miembros()).sum({guerrero => guerrero.cantidadDeUnElemento(nombre)})
+  method sumatoriaDeCantidad(grupo) = (grupo.miembros()).sum({guerrero => guerrero.cantidadDeUnElemento(nombreDeElemento)})
 }
 
 class RequerimientoDeGuerrero inherits Requerimiento
@@ -243,7 +247,7 @@ class Camino
   }
 
   //Grupo
-  method grupoPuedePasar(grupo) = grupo.miembrosPuedenPasarVariasZonas(zonas)
+  method grupoPuedePasar(grupo) = grupo.miembros().all({guerrero => self.puedePasar(guerrero)})
   method grupoAtravesar(grupo){
     if(self.grupoPuedePasar(grupo)) grupo.miembros().forEach({guerrero => self.atravesar(guerrero)})
     else throw new DomainException(message = "Grupo no puede atravesar este camino")
@@ -252,11 +256,9 @@ class Camino
 
 class Grupo
 {
-  const miembros = []
+  const property miembros = []
   
   method sumarMiembro(nuevoMiembro) = miembros.add(nuevoMiembro)
-  method miembrosPuedenPasarZona(zona) = miembros.all({guerrero => zona.puedePasar(guerrero)})
-  method miembrosPuedenPasarVariasZonas(listaDeZonas) = listaDeZonas.all({zona => self.miembrosPuedenPasarZona(zona)})
   method atravesarZona(zona) = zona.GrupoAtravesar(self)
   method atravesarCamino(camino) = camino.GrupoAtravesar(self)
 }
@@ -266,3 +268,71 @@ const minasTirith = new ZonaQueDemandaArmas(vidaAQuitar=10)
 const lossarnach = new Zona()
 
 const caminoDeGondor = new Camino(zonas=[lebennin,minasTirith])
+
+
+
+/*=====================TERCERA ENTREGA=====================*/
+/*-------------------------PARTE 1-------------------------*/
+
+class Tactica
+{
+  method poderDeAtaque(guerrero) = guerrero.poder()/10
+  method ataque(guerrero,contrincante) = contrincante.perderVida(self.poderDeAtaque(guerrero))
+  method secuenciaDeAtaque(guerrero,contrincante)
+  method enfrentarse(guerrero,contrincante){
+    if(guerrero.estaVivo()){
+      self.secuenciaDeAtaque(guerrero,contrincante)
+    }
+    else throw new DomainException(message = "Este guerrero está muerto X_X")
+  }
+}
+
+class TacticaAgil inherits Tactica()
+{
+  override method poderDeAtaque(guerrero) = super(guerrero) + 100
+  override method secuenciaDeAtaque(guerrero,contrincante){
+    self.ataque(guerrero,contrincante)      //Ataca primero
+    self.ataque(contrincante,guerrero)      //Recibe contraataque
+  }
+}
+
+class TacticaResistencia inherits Tactica()
+{
+  method recibirAtaque(guerrero,contrincante) = guerrero.perderVida(contrincante.poderDeAtaque()/2)
+  override method secuenciaDeAtaque(guerrero,contrincante){
+    self.recibirAtaque(guerrero,contrincante)   //Recibe daño reducido
+    self.ataque(guerrero,contrincante)          //Contraataca
+  }
+}
+
+class TacticaCaruso inherits Tactica
+{
+  const umbralDeEnergia
+
+  method huir(guerrero) = guerrero.perderVida(10)
+  method poderMenorAlUmbral(guerrero,contrincante) = umbralDeEnergia > contrincante.poderDeAtaque()
+  override method secuenciaDeAtaque(guerrero,contrincante){
+    if(guerrero.estaVivo()){
+      if(self.poderMenorAlUmbral(guerrero,contrincante)){
+        self.ataque(guerrero,contrincante)      //Ataca primero
+        self.ataque(contrincante,guerrero)      //Recibe contraataque
+      }
+      else self.huir(guerrero)
+    }
+  }
+}
+
+class TacticaCuatroTresTres inherits Tactica
+{
+  method evitaAtaque(guerrero) = guerrero.vida() > 60
+  override method secuenciaDeAtaque(guerrero,contrincante){
+    if(guerrero.estaVivo()){
+      self.ataque(guerrero,contrincante)      
+      self.ataque(guerrero,contrincante)      //Ataca dos veces
+      if(!self.evitaAtaque(guerrero)) self.ataque(contrincante,guerrero)
+    }
+  }
+}
+
+/*-------------------------PARTE 2-------------------------*/
+

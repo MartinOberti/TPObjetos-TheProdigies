@@ -1,0 +1,28 @@
+import entrega2y3.*
+
+describe "Tests para las Tácticas de Combate" {
+  test "Légolas se enfrenta contra Gandalf. Ambos mueren"{
+    legolas.enfrentarse(gandalf)
+    assert.that(legolas.estaMuerto())
+    assert.that(gandalf.estaMuerto())
+  }
+  test "Gandalf se enfrenta a Frodo y evita ser atacado. Frodo muere"{
+    gandalf.enfrentarse(frodo)
+    assert.equals(100,gandalf.vida())
+    assert.that(frodo.estaMuerto())
+  }
+  test "Aragorn se enfrenta contra Gollum y recibe daño reducido. Ambos sobreviven"{
+    aragorn.enfrentarse(gollum)
+    assert.equals(82.5,aragorn.vida())
+    assert.that(aragorn.estaVivo())
+    assert.that(gollum.estaVivo())
+  }
+  test "Frodo huye de Tom Bombadil, perdiendo 10 de vida"{
+    frodo.enfrentarse(tomBombadil)
+    assert.equals(40,frodo.vida())
+  }
+  test "Un guerrero muerto no puede enfrentarse con nadie"{
+    frodo.matar()
+    assert.throwsException({frodo.enfrentarse(tomBombadil)})
+  }
+}
