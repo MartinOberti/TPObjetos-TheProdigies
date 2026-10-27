@@ -336,3 +336,43 @@ class TacticaCuatroTresTres inherits Tactica
 
 /*-------------------------PARTE 2-------------------------*/
 
+class Anillo {
+  var duenio
+  method invocarAnillo(persona){
+    duenio.vida((duenio.vida()*2).min(100))
+    duenio.efecto(persona)
+  }
+  method efecto(persona)
+}
+
+class AnilloFuego inherits Anillo{
+override method efecto(archienemigo){
+  duenio.enfrentarse(archienemigo)
+  archienemigo.perderVida(20)
+}
+}
+
+class AnilloMaldito inherits Anillo{
+  override method efecto(persona){
+(duenio.armas().max({arma=>arma.poder()})).remove()
+}
+}
+
+class AnilloAire inherits Anillo{
+  override method efecto(mejorAmigo){
+    mejorAmigo.aumentarVida(30)
+  }
+}
+
+object anilloUnico inherits Anillo(duenio=gollum) {
+
+override method efecto(persona){
+if(duenio.cantidadDeArmas()>3){
+    duenio.perderVida(20)
+}  
+else
+{
+  duenio.perderVida(30)
+}
+}
+}
