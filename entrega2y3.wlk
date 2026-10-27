@@ -58,8 +58,8 @@ class Guerrero
   method atravesarZona(zona) = zona.atravesar(self)
   method atravesarCamino(camino) = camino.atravesar(self)
   method cantidadDeUnElemento(nombre){
-    const aux = elementos.filter({elemento => elemento.mismoNombre(nombre)})
-    return aux.sum({elemento => elemento.cantidad()})
+    return  (elementos.filter({elemento => elemento.mismoNombre(nombre)})).sum({elemento => elemento.cantidad()})
+    
   }
 
   //Métodos de Combate
