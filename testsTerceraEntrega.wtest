@@ -67,8 +67,9 @@ describe "Grupo de Tests para los Anillos" {
     assert.equals(95.5,frodo.vida())
   }
   test "Aragorn usa su anillo y pierde su arma más poderosa"{
+    const armaMasPoderosa = aragorn.armaMasPoderosa()
     aragorn.usarAnillo()
-    assert.equals(1,aragorn.cantidadDeArmas())
+    assert.notThat(aragorn.armas().contains(armaMasPoderosa))
   }
   test "Gimli usa su anillo de aire"{
     gimli.usarAnillo()
@@ -77,5 +78,13 @@ describe "Grupo de Tests para los Anillos" {
   test "Gollum usa su anillo único"{
     gollum.usarAnillo()
     assert.equals(70,gollum.vida())
+  }
+  test "Gollum usa su anillo único teniendo 3 armas"{
+    gollum.guardarArma(anduril)
+    gollum.guardarArma(dagaDeAragorn)
+    gollum.guardarArma(espadaDeLegolas)
+    gollum.guardarArma(baculoDeGandalf)
+    gollum.usarAnillo()
+    assert.equals(80,gollum.vida())
   }
 }

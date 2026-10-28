@@ -43,10 +43,12 @@ class Guerrero
   var property mejorAmigo
 
   method poder()
+  method armas() = armas
   method cantidadDeArmas() = armas.size()
   method cantidadDeElementos() = elementos.size()
   method tieneArmas() = !armas.isEmpty()
   method sacarArma(arma) = armas.remove(arma)
+  method guardarArma(arma)= armas.add(arma)
   method poderDeArmas() = armas.sum({arma => arma.poder(self)})
   method armaMasPoderosa() = armas.max({arma => arma.poder(self)})
   method tienePocaVida() = self.vida() < 10
