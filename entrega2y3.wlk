@@ -34,7 +34,7 @@ class Hacha
 
 /*-------------------------PARTE 2-------------------------*/
 
-class Guerrero
+class Guerrero inherits Aventurero
 {
   var property vida
   const armas = []
@@ -60,8 +60,6 @@ class Guerrero
 	method esElfo() = self.kindName() == "an Elfo"
 	method esEnano() = self.kindName() == "an Enano"
 	method esHumano() = self.kindName() == "a Humano"
-  method atravesarZona(zona) = zona.atravesar(self)
-  method atravesarCamino(camino) = camino.atravesar(self)
   method cantidadDeUnElemento(nombre){
     return  (elementos.filter({elemento => elemento.mismoNombre(nombre)})).sum({elemento => elemento.cantidad()})
     
@@ -73,7 +71,7 @@ class Guerrero
   method poderDeAtaque() = tactica.poderDeAtaque(self)
   method enfrentarse(contrincante) = tactica.enfrentarse(self,contrincante)
 
-  // Anillo
+  //Anillo
   const anillo 
   method usarAnillo(){
     anillo.invocarAnillo()
@@ -176,40 +174,47 @@ const gandalf = new Maiar(vida = 100, armas = [glamdring, baculoDeGandalf], tact
 
 /*-------------------------PARTE 3-------------------------*/
 
+class Aventurero
+{
+  method puedePasar(zonaOCamino) = zonaOCamino.criterioParaPasar(self)
+  method atravesar(zonaOCamino){
+    if(self.puedePasar(zonaOCamino)) zonaOCamino.cambiosAlGuerrero(self)
+    else{
+      console.println("YOU SHALL NOT PASS!!!")
+      zonaOCamino.aplicarPenalidades(self)
+    }
+  }
+}
+
 class Zona
 {
-  //Guerrero Individual
-  method puedePasar(guerrero) = self.criterio(guerrero)
-  method atravesar(guerrero){
-    if(self.puedePasar(guerrero)) self.cambiosAlGuerrero(guerrero)
-    else throw new DomainException(message = "No puede atravesar esta zona")
-  }
+  const requerimiento
 
-  method criterio(guerrero) = true
-  method cambiosAlGuerrero(guerrero) = guerrero
+  method criterioParaPasar(guerrero)
+  method cambiosAlGuerrero(guerrero)
+  method aplicarPenalidades(guerrero) = guerrero
+  method cumpleRequerimiento(grupo) = requerimiento.grupoPuedePasar(grupo)
+}
 
-  //Grupo
-  const requerimientoDeZona = new RequerimientoSinRestriccion()
-
-  method grupoPuedePasar(grupo) {return grupo.miembros().all({guerrero => self.puedePasar(guerrero)}) && requerimientoDeZona.grupoPuedePasar(grupo)}
-  method grupoAtravesar(grupo){
-    if(self.grupoPuedePasar(grupo)) grupo.miembros().forEach({guerrero => self.atravesar(guerrero)})
-    else throw new DomainException(message = "El grupo no puede atravesar esta zona")
-  }
+class ZonaSinDemandas inherits Zona
+{
+  override method criterioParaPasar(guerrero) = true
+  override method cambiosAlGuerrero(guerrero) = guerrero
 }
 
 class ZonaQueDemandaPoder inherits Zona
 {
   const poderNecesario
 
-  override method criterio(guerrero) = guerrero.poder() > poderNecesario
+  override method criterioParaPasar(guerrero) = guerrero.poder() > poderNecesario
+  override method cambiosAlGuerrero(guerrero) = guerrero
 }
 
 class ZonaQueDemandaArmas inherits Zona
 {
   const vidaAQuitar
 
-  override method criterio(guerrero) = guerrero.tieneArmas()
+  override method criterioParaPasar(guerrero) = guerrero.tieneArmas()
   override method cambiosAlGuerrero(guerrero) = guerrero.perderVida(vidaAQuitar)
 }
 
@@ -256,44 +261,35 @@ class RequerimientoDeVida inherits RequerimientoDeGuerrero
   override method factor(guerrero) = guerrero.vida()
 }
 
-class Camino
+class Camino inherits Zona(requerimiento = new RequerimientoSinRestriccion())
 {
   const zonas = []
-  var property penalidades = []           //Entrega 3 - Parte 2
+  var property penalidades = []
 
-  //Guerrero Individual
-  method puedePasar(guerrero) = zonas.all({lugar => lugar.puedePasar(guerrero)})
-  method atravesar(guerrero){
-    if(self.puedePasar(guerrero)) zonas.forEach({lugar => lugar.atravesar(guerrero)})
-    else{
-      penalidades.forEach({penalidad => penalidad.sufrirPenalidad(guerrero)})
-      console.println("No puede atravesar este camino")
-    }
-  }
-
-  //Grupo
-  method grupoPuedePasar(grupo) = grupo.miembros().all({guerrero => self.puedePasar(guerrero)})
-  method grupoAtravesar(grupo){
-    if(self.grupoPuedePasar(grupo)) grupo.miembros().forEach({guerrero => self.atravesar(guerrero)})
-    else{
-      penalidades.forEach({penalidad => penalidad.grupoSufrirPenalidad(grupo)})
-      console.println("No puede atravesar este camino")
-    }
-  }
+  override method criterioParaPasar(guerrero) = zonas.all({zona => zona.criterioParaPasar(guerrero)})
+  override method cambiosAlGuerrero(guerrero) = zonas.forEach({zona => zona.cambiosAlGuerrero(guerrero)})
+  override method aplicarPenalidades(guerrero) = penalidades.forEach({penalidad => penalidad.sufrirPenalidad(guerrero)})
 }
 
 class Grupo
 {
   const property miembros = []
-  
+
   method sumarMiembro(nuevoMiembro) = miembros.add(nuevoMiembro)
-  method atravesarZona(zona) = zona.GrupoAtravesar(self)
-  method atravesarCamino(camino) = camino.GrupoAtravesar(self)
+  method puedePasar(zonaOCamino){
+    return miembros.all({guerrero => guerrero.puedePasar(zonaOCamino)})
+    && zonaOCamino.cumpleRequerimiento(self)
+  }
+  method atravesar(zonaOCamino){
+    if(self.puedePasar(zonaOCamino)) miembros.forEach({guerrero => guerrero.atravesar(zonaOCamino)})
+  }
 }
 
-const lebennin = new ZonaQueDemandaPoder(poderNecesario=1500)
-const minasTirith = new ZonaQueDemandaArmas(vidaAQuitar=10)
-const lossarnach = new Zona()
+const requerimientoBase = new RequerimientoSinRestriccion()
+
+const lebennin = new ZonaQueDemandaPoder(poderNecesario=1500,requerimiento=requerimientoBase)
+const minasTirith = new ZonaQueDemandaArmas(vidaAQuitar=10,requerimiento=requerimientoBase)
+const lossarnach = new ZonaSinDemandas(requerimiento=requerimientoBase)
 
 const caminoDeGondor = new Camino(zonas=[lebennin,minasTirith])
 
@@ -367,7 +363,6 @@ class TacticaCuatroTresTres inherits Tactica
 class Penalidad
 {
   method sufrirPenalidad(guerrero)
-  method grupoSufrirPenalidad(grupo) = grupo.miembros().forEach({guerrero => self.sufrirPenalidad(guerrero)})
 }
 
 class PenalidadDeMuerte inherits Penalidad

@@ -28,31 +28,32 @@ describe "Grupo de Tests para las Tácticas de Combate" {
 }
 
 describe "Grupo de Tests para Penalidades de Caminos" {
+  const requerimientoBase = new RequerimientoSinRestriccion()
   const penalidad1 = new PenalidadDeMuerte()
   const penalidad2 = new PenalidadDeDanio(valorQuitado=25)
   const penalidad3 = new PenalidadDeArma()
-  const zonaTest = new ZonaQueDemandaPoder(poderNecesario=2500)
+  const zonaTest = new ZonaQueDemandaPoder(poderNecesario=2500,requerimiento=requerimientoBase)
 
   test "Gimli no puede atravesar el camino y pierde una de sus armas"{
     const caminoTest = new Camino(zonas=[zonaTest],penalidades=[penalidad3])
-    caminoTest.atravesar(gimli)
+    gimli.atravesar(caminoTest)
     assert.equals(1,gimli.cantidadDeArmas())
   }
   test "Legolas no puede atravesar el camino y pierde 25 puntos de vida"{
     const caminoTest = new Camino(zonas=[zonaTest],penalidades=[penalidad2])
-    caminoTest.atravesar(legolas)
+    legolas.atravesar(caminoTest)
     assert.equals(55,legolas.vida())
   }
   test "Frodo no puede atravesar el camino, se muere y pierde su única arma"{
     const caminoTest = new Camino(zonas=[zonaTest],penalidades=[penalidad1,penalidad3])
-    caminoTest.atravesar(frodo)
+    frodo.atravesar(caminoTest)
     assert.that(frodo.estaMuerto())
     assert.notThat(frodo.tieneArmas())
   }
   test "Grupo de Gandalf y Tom Bombadil puede atravesar la zona y no recibe ninguna penalidad"{
     const caminoTest = new Camino(zonas=[zonaTest],penalidades=[penalidad1,penalidad2,penalidad3])
     const grupoTest = new Grupo(miembros=[gandalf,tomBombadil])
-    caminoTest.grupoAtravesar(grupoTest)
+    grupoTest.atravesar(caminoTest)
     assert.equals(100,gandalf.vida())
     assert.that(gandalf.estaVivo())
     assert.equals(2,gandalf.cantidadDeArmas())

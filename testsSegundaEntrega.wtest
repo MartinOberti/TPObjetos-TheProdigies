@@ -4,7 +4,6 @@ import entrega2y3.*
 const tacticaAux = new TacticaAgil()
 
 describe "Grupo de Tests para el Arsenal" {
-	
 	const enanoTest = new Enano(factorDePoder=5, vida=50, tactica=tacticaAux,anillo=0,archienemigo = gollum,mejorAmigo = frodo)
 	
   test "Espada con multiplicador de 15 y llevada Enano"{
@@ -65,57 +64,58 @@ describe "Grupo de Tests para Guerreros" {
 }
 
 describe "Grupo de Tests para Zonas y Guerreros Individuales" {
+  const requerimientoBase = new RequerimientoSinRestriccion()
 	test "Zona de poder atravesada por varios guerreros de poder distinto"{
-		const zonaTest = new ZonaQueDemandaPoder(poderNecesario=1500)	
+		const zonaTest = new ZonaQueDemandaPoder(poderNecesario=1500,requerimiento=requerimientoBase)	
 		const viajero1 = new Maiar(vida=105, armas=[], tactica=tacticaAux,anillo=0,archienemigo = gollum,mejorAmigo = frodo)
 		const viajero2 = new Maiar(vida=20, armas=[], tactica=tacticaAux,anillo=0,archienemigo = gollum,mejorAmigo = frodo)
-		assert.that(zonaTest.puedePasar(viajero1))
-		assert.notThat(zonaTest.puedePasar(viajero2))
+    assert.that(viajero1.puedePasar(zonaTest))
+    assert.notThat(viajero2.puedePasar(zonaTest))
 	}
 	test "Zona de armas atravesada por varios guerreros"{
-		const zonaTest = new ZonaQueDemandaArmas(vidaAQuitar=75)
+		const zonaTest = new ZonaQueDemandaArmas(vidaAQuitar=75,requerimiento=requerimientoBase)
 		const viajero1 = new Humano(vida=50, limitadorDePoder=5, armas=[anduril], tactica=tacticaAux,anillo=0,archienemigo = gollum,mejorAmigo = frodo)
 		const viajero2 = new Humano(vida=50, limitadorDePoder=5, armas=[], tactica=tacticaAux,anillo=0,archienemigo = gollum,mejorAmigo = frodo)
-		assert.that(zonaTest.puedePasar(viajero1))
-		assert.notThat(zonaTest.puedePasar(viajero2))
-		zonaTest.atravesar(viajero1)
+    assert.that(viajero1.puedePasar(zonaTest))
+    assert.notThat(viajero2.puedePasar(zonaTest))
+    viajero1.atravesar(zonaTest)
 		assert.that(viajero1.estaMuerto())
 	}
 }
 
 describe "Grupo de Tests para Caminos, Grupos y Requerimientos Generales" {
 	const requerimiento1 = new RequerimientoDePoder(cantidadNecesaria=2000)
-	const zona1 = new ZonaQueDemandaArmas(vidaAQuitar=5, requerimientoDeZona=requerimiento1)
+	const zona1 = new ZonaQueDemandaArmas(vidaAQuitar=5, requerimiento=requerimiento1)
 	const requerimiento2 = new RequerimientoDeVida(cantidadNecesaria=50)
-	const zona2 = new ZonaQueDemandaPoder(poderNecesario=1500, requerimientoDeZona=requerimiento2)
+	const zona2 = new ZonaQueDemandaPoder(poderNecesario=1500, requerimiento=requerimiento2)
 	const caminoTest = new Camino(zonas=[zona1,zona2])
 	const grupoTest = new Grupo(miembros=[gimli,gandalf])
 
 	test "Grupo de Gandalf y Gimli puede pasar el camino"{
-		assert.that(caminoTest.grupoPuedePasar(grupoTest))
+    assert.that(grupoTest.puedePasar(caminoTest))
 	}
 	test "Mismo grupo sumado por Légolas no puede pasar el camino"{
 		grupoTest.sumarMiembro(legolas)
-		assert.notThat(caminoTest.grupoPuedePasar(grupoTest))
+    assert.notThat(grupoTest.puedePasar(caminoTest))
 	}
 	test "Tom Bombadil puede pasar Lebennin pero no Minas Tirith"{
-		assert.that(lebennin.puedePasar(tomBombadil))
-		assert.notThat(minasTirith.puedePasar(tomBombadil))
+    assert.that(tomBombadil.puedePasar(lebennin))
+    assert.notThat(tomBombadil.puedePasar(minasTirith))
 	}
 }
 
 describe "Grupo de Tests para una Zona con Requerimiento de Elementos" {
 	const requerimientoTest = new RequerimientoDeElemento(cantidad=30, nombreDeElemento="Lembas")
-	const zonaTest = new ZonaQueDemandaPoder(poderNecesario=25, requerimientoDeZona=requerimientoTest)
+	const zonaTest = new ZonaQueDemandaPoder(poderNecesario=25, requerimiento=requerimientoTest)
 	const viajero1 = new Humano(vida=50, limitadorDePoder=5, elementos=[new Elemento(cantidad=16, nombre="Lembas")], tactica=tacticaAux,anillo=0,archienemigo = gollum,mejorAmigo = frodo)
 	const viajero2 = new Humano(vida=50, limitadorDePoder=5, elementos=[new Elemento(cantidad=16, nombre="Lembas")], tactica=tacticaAux,anillo=0,archienemigo = gollum,mejorAmigo = frodo)
 	const grupoTest = new Grupo(miembros=[viajero1])
 
 	test "Grupo de una persona no puede pasar el requerimiento de la zona"{
-		assert.notThat(zonaTest.grupoPuedePasar(grupoTest))
+    assert.notThat(grupoTest.puedePasar(zonaTest))
 	}
 	test "Grupo de dos personas puede pasar el requerimiento de la zona"{
 		grupoTest.sumarMiembro(viajero2)
-		assert.that(zonaTest.grupoPuedePasar(grupoTest))
+    assert.that(grupoTest.puedePasar(zonaTest))
 	}
 }
